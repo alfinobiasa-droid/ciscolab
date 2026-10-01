@@ -1,0 +1,191 @@
+[
+ {
+  "id": 1,
+  "cat": "Dasar Cisco",
+  "title": "Pengenalan Cisco IOS & Konfigurasi Dasar",
+  "level": "Pemula",
+  "min": 30,
+  "color": "#0a6cff",
+  "devices": [
+   "Router",
+   "Switch",
+   "PC"
+  ],
+  "topics": [
+   "User EXEC Mode",
+   "Privileged EXEC Mode",
+   "Global Configuration Mode",
+   "hostname",
+   "enable secret",
+   "console password",
+   "banner MOTD",
+   "interface configuration"
+  ]
+ },
+ {
+  "id": 2,
+  "cat": "Switching & VLAN",
+  "title": "Switching & VLAN",
+  "level": "Pemula",
+  "min": 40,
+  "color": "#12b8d6",
+  "devices": [
+   "Switch",
+   "PC"
+  ],
+  "topics": [
+   "VLAN",
+   "Access Port",
+   "Trunk",
+   "Native VLAN",
+   "Inter-VLAN"
+  ]
+ },
+ {
+  "id": 3,
+  "cat": "Routing",
+  "title": "Static Routing",
+  "level": "Menengah",
+  "min": 45,
+  "color": "#7a5cff",
+  "devices": [
+   "Router",
+   "PC"
+  ],
+  "topics": [
+   "routing table",
+   "ip route",
+   "default route",
+   "next hop",
+   "multi-router topology"
+  ]
+ },
+ {
+  "id": 4,
+  "cat": "Routing",
+  "title": "Dynamic Routing",
+  "level": "Menengah",
+  "min": 50,
+  "color": "#ff8a1f",
+  "devices": [
+   "Router"
+  ],
+  "topics": [
+   "RIP",
+   "OSPF",
+   "network",
+   "router ID",
+   "routing table"
+  ]
+ },
+ {
+  "id": 5,
+  "cat": "Subnetting",
+  "title": "Subnetting",
+  "level": "Pemula",
+  "min": 45,
+  "color": "#12a37f",
+  "devices": [
+   "PC",
+   "Router"
+  ],
+  "topics": [
+   "IPv4",
+   "subnet mask",
+   "CIDR",
+   "network address",
+   "broadcast",
+   "host range",
+   "VLSM"
+  ]
+ },
+ {
+  "id": 6,
+  "cat": "Troubleshooting",
+  "title": "Troubleshooting Network",
+  "level": "Lanjut",
+  "min": 60,
+  "color": "#e0475b",
+  "devices": [
+   "Router",
+   "Switch",
+   "PC"
+  ],
+  "topics": [
+   "ping",
+   "traceroute",
+   "show ip interface",
+   "show ip route",
+   "show vlan",
+   "show interfaces",
+   "troubleshooting VLAN",
+   "troubleshooting routing"
+  ]
+ },
+ {
+  "id": 7,
+  "cat": "Layanan",
+  "title": "Layanan Jaringan: DHCP, NAT & ACL",
+  "level": "Menengah",
+  "min": 50,
+  "color": "#c9399b",
+  "devices": [
+   "Router",
+   "Switch",
+   "PC"
+  ],
+  "topics": [
+   "DHCP",
+   "ip dhcp pool",
+   "NAT",
+   "PAT overload",
+   "ACL standar",
+   "ip access-group"
+  ]
+ },
+ {
+  "id": 8,
+  "cat": "Keamanan",
+  "title": "Keamanan Jaringan",
+  "level": "Pemula",
+  "min": 35,
+  "color": "#0f766e",
+  "devices": [
+   "Router",
+   "Switch",
+   "PC"
+  ],
+  "topics": [
+   "Confidentiality",
+   "Integrity",
+   "Availability",
+   "DoS/DDoS",
+   "packet sniffing",
+   "IP spoofing",
+   "prevention",
+   "SSH"
+  ]
+ },
+ {
+  "id": 9,
+  "cat": "Linux",
+  "title": "Linux Debian & Layanan Server",
+  "level": "Menengah",
+  "min": 60,
+  "color": "#b45309",
+  "devices": [
+   "Server",
+   "PC"
+  ],
+  "topics": [
+   "direktori Linux",
+   "chmod",
+   "chown",
+   "apt-get",
+   "/etc/network/interfaces",
+   "DHCP server",
+   "mail server",
+   "proxy Squid"
+  ]
+ }
+]
