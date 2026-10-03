@@ -1,6 +1,6 @@
 import MODULES from "../data/modules.json";
 import LESSONS from "../data/lessons.json";
-import {store, S, $, esc} from "../core.js";
+import {dailyEvent, store, S, $, esc} from "../core.js";
 import {render, go} from "../main.js";
 import {L, pct, shuffle} from "./quiz.js";
 
@@ -12,11 +12,11 @@ const doneSet=id=>LS[id]||[];
 const isDone=(id,i)=>doneSet(id).includes(i);
 const unlocked=(id,i)=>i===0||isDone(id,i-1);
 function setLesson(i){MD.i=i;MD.sel=null;MD.bad=[];MD.msg="";MD.order=shuffle(LESSONS[MD.id][i][5].map((_,k)=>k))}
-function openModule(id){MD.id=id;setLesson(Math.min(doneSet(id).length,LESSONS[id].length-1));S.page="modul";render()}
+function openModule(id){MD.id=id;store.set("lastModule",id);setLesson(Math.min(doneSet(id).length,LESSONS[id].length-1));S.page="modul";render()}
 function completeLesson(){
  const id=MD.id,n=LESSONS[id].length;
  (LS[id]=LS[id]||[]).push(MD.i);
- S.xp+=10;S.streak++;MD.msg="✓ Benar! +10 XP";
+ S.xp+=10;S.streak++;dailyEvent("lesson");MD.msg="✓ Benar! +10 XP";
  const pct=Math.round(LS[id].length/n*100);S.progress[id]=pct;
  if(pct===100&&!MDONE[id]){MDONE[id]=true;S.xp+=50;MD.msg+=" · Modul selesai! +50 XP";store.set("modDone",MDONE)}
  store.set("lessons",LS);store.set("progress",S.progress);store.set("xp",S.xp);store.set("streak",S.streak);

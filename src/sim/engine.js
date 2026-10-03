@@ -1,4 +1,4 @@
-import {S, $} from "../core.js";
+import {dailyEvent, S, $} from "../core.js";
 import {L, pool} from "../pages/quiz.js";
 import {isIp, ip2n, validMask, maskLen, netOf, sameNet, pad} from "./net.js";
 import {wild, bin} from "../pages/subnet.js";
@@ -195,7 +195,7 @@ function sbBrief(){
  ...Object.entries(SB.ifs).map(([k,v])=>pad(k,27)+pad(v.ip||"unassigned",16)+pad("YES",5)+pad(v.ip?"manual":"unset",7)+pad(v.up?"up":"administratively down",23)+(v.up?"up":"down"))];
 }
 function sbRoutes(){
- SB.seen.route=true;const c=conn(),st=SB.routes.filter(r=>c.some(x=>sameNet(x.ip,r.nh,x.mask)));
+ SB.seen.route=true;dailyEvent("route");const c=conn(),st=SB.routes.filter(r=>c.some(x=>sameNet(x.ip,r.nh,x.mask)));
  const isDef=r=>r.net==="0.0.0.0"&&r.mask==="0.0.0.0",def=st.find(isDef);
  const o=["Codes: C - connected, S - static, L - local, * - candidate default","",def?`Gateway of last resort is ${def.nh} to network 0.0.0.0`:"Gateway of last resort is not set",""];
  c.forEach(x=>{o.push(`C    ${netOf(x.ip,x.mask)}/${maskLen(x.mask)} is directly connected, ${x.name}`);o.push(`L    ${x.ip}/32 is directly connected, ${x.name}`)});
@@ -237,7 +237,7 @@ function sbRun(line){
  }
  if(SB.dev==="router"&&M==="if"&&c0==="ip"&&m(1,"address",2)&&n===4){
   if(!isIp(w[2])||!validMask(w[3]))return[bad];
-  Object.assign(SB.ifs[SB.cur],{ip:w[2],mask:w[3]});return[];
+  Object.assign(SB.ifs[SB.cur],{ip:w[2],mask:w[3]});dailyEvent("ip");return[];
  }
  if(M==="if"&&c0==="no"&&m(1,"shutdown",3)&&n===2){
   const i=SB.ifs[SB.cur],was=i.up;i.up=true;
@@ -315,7 +315,7 @@ function sbRun(line){
  if(M==="if"&&SB.dev==="router"&&c0==="no"&&m(1,"ip",2)&&m(2,"address",2)&&n===3){Object.assign(SB.ifs[SB.cur],{ip:"",mask:""});return[]}
  if(M==="priv"&&m(0,"copy",2)&&m(1,"running-config",3)&&m(2,"startup-config",3)&&n===3){SB.saved=true;return["Destination filename [startup-config]?","Building configuration...","[OK]"]}
  if(SB.dev==="switch"){
-  if(cfg&&c0==="vlan"&&n===2){const v=+w[1];if(!(v>=1&&v<=4094))return[bad];SB.vlans[v]=SB.vlans[v]||{name:"VLAN"+String(v).padStart(4,"0")};SB.mode="vlan";SB.curV=v;return[]}
+  if(cfg&&c0==="vlan"&&n===2){const v=+w[1];if(!(v>=1&&v<=4094))return[bad];SB.vlans[v]=SB.vlans[v]||{name:"VLAN"+String(v).padStart(4,"0")};SB.mode="vlan";SB.curV=v;dailyEvent("vlan");return[]}
   if(M==="vlan"&&c0==="name"&&n===2){SB.vlans[SB.curV].name=w[1];return[]}
   if(cfg&&c0==="no"&&m(1,"vlan")&&n===3){const v=+w[2];if(v===1)return["% Default VLAN 1 may not be deleted."];delete SB.vlans[v];SB.mode="config";return[]}
   if(M==="if"&&m(0,"switchport",3)){

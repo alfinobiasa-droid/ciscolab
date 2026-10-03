@@ -1,4 +1,4 @@
-import {store, S, $, esc} from "../core.js";
+import {dailyEvent, store, S, $, esc} from "../core.js";
 import {go} from "../main.js";
 
 const CAUSES=[
@@ -63,7 +63,7 @@ document.addEventListener("click",e=>{
  else if(a==="list")T.cur=null;
  else if(a==="pick"&&T.sel==null){
   const s=TS.find(x=>x.id===T.cur);T.sel=v;
-  if(v===s.ans){S.streak++;if(!TK.done[s.id]){TK.done[s.id]=true;T.gain=true;S.xp+=10;store.set("xp",S.xp);store.set("trouble",TK)}}else S.streak=0;
+  if(v===s.ans){S.streak++;dailyEvent("trouble");if(!TK.done[s.id]){TK.done[s.id]=true;T.gain=true;S.xp+=10;store.set("xp",S.xp);store.set("trouble",TK)}}else S.streak=0;
   store.set("streak",S.streak);
  }
  else if(a==="next"){const nx=TS.find(x=>x.id>T.cur);T.cur=nx?nx.id:null;T.sel=null;T.gain=false}

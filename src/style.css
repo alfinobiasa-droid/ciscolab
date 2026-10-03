@@ -104,6 +104,30 @@ main{max-width:1120px;margin:0 auto;padding:16px 16px calc(var(--nav-h) + 28px +
 .pg{font-size:1.5em}
 .skip{position:absolute;left:8px;top:-60px;z-index:60;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:700}
 .skip:focus{top:calc(8px + env(safe-area-inset-top,0px))}
+body{background-image:radial-gradient(color-mix(in srgb,var(--ink) 10%,transparent) 1px,transparent 1px);background-size:22px 22px}
+.hero,.dash-hero{background-color:#0b1f3a;background-image:linear-gradient(rgba(18,184,214,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(18,184,214,.12) 1px,transparent 1px);background-size:28px 28px}
+.dash-hero{display:flex;flex-direction:column;gap:14px;color:#fff;border-radius:22px;padding:22px 20px;box-shadow:var(--shadow);overflow:hidden}
+.dh-title{margin:0 0 4px;font-size:clamp(1.5rem,5vw,2rem);line-height:1.2}
+.dh-sub{margin:0 0 12px;opacity:.92}
+.xpbar{height:10px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}
+.xpbar i{display:block;height:100%;background:#12b8d6;border-radius:99px;transition:width .7s ease}
+.dh-next{margin:8px 0 0;font-size:.9rem;opacity:.92}
+.dh-art{width:100%;max-width:260px;height:auto;align-self:center}
+.stats4{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.dgrid{display:grid;gap:14px;margin-top:14px}
+.dcard{background:var(--card);border-radius:20px;padding:18px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.dh2{margin:0 0 8px;font-size:1.1rem}
+.dq{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.dq i{font-style:normal;width:22px;height:22px;border-radius:6px;border:2px solid var(--line);display:grid;place-items:center;flex:none;font-size:.8rem}
+.dq span{flex:1;min-width:0}
+.dq b{font-size:.85rem;color:var(--mute)}
+.dq.ok i{background:#1a9b5c;border-color:#1a9b5c;color:#fff}
+.dq.ok span{text-decoration:line-through;opacity:.7}
+.nav button{font-size:.56rem}
+@media (max-width:360px){.nav button{font-size:.5rem}}
+@media (min-width:640px){.dash-hero{flex-direction:row;align-items:center;justify-content:space-between}.dh-main{flex:1}.dh-art{max-width:300px}.stats4{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:1024px){.dgrid{grid-template-columns:1.2fr 1fr;align-items:start}.nav button{font-size:.95rem}}
+@media (prefers-reduced-motion:reduce){.xpbar i{transition:none}}
 @media (min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}.hero{padding:36px 32px}.logo small{display:block}.deskonly{display:grid}}
 @media (min-width:1024px){
  body{padding-left:230px}

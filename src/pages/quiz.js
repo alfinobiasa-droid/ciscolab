@@ -1,5 +1,5 @@
 import QUESTIONS from "../data/questions.json";
-import {toast, store, S, $, esc} from "../core.js";
+import {toast, dailyEvent, store, S, $, esc} from "../core.js";
 import {go} from "../main.js";
 
 const QCATS=["Semua","Dasar Cisco","VLAN","Routing","OSPF","Subnetting","Layanan","Keamanan","Linux","Troubleshooting"];
@@ -28,7 +28,7 @@ function examAnswer(){
 function finishExam(){
  const r=Q.run;if(r.finished)return;r.finished=true;
  r.i=r.items.length;r.ok=r.items.filter((it,i)=>r.answers[i]===it.q.answer).length;r.xp=r.ok*10;
- S.xp+=r.xp;QS.ans+=r.answers.filter(a=>a!=null).length;QS.ok+=r.ok;
+ S.xp+=r.xp;if(r.ok)dailyEvent("quiz_ok",r.ok);QS.ans+=r.answers.filter(a=>a!=null).length;QS.ok+=r.ok;
  r.items.forEach((it,i)=>{if(r.answers[i]!=null){bumpCat(it.q.category,r.answers[i]===it.q.answer);if(!QS.done.includes(it.q.id))QS.done.push(it.q.id)}});
  store.set("qstats",QS);store.set("xp",S.xp);saveQuiz();
 }
@@ -75,7 +75,7 @@ function answerQuiz(){
  if(Q.run.exam)return examAnswer();
  const r=Q.run,it=r.items[r.i],ok=it.order[r.sel]===it.q.answer;
  r.done=true;QS.ans++;bumpCat(it.q.category,ok);
- if(ok){QS.ok++;r.ok++;r.xp+=it.q.xp;S.xp+=it.q.xp;S.streak++}else S.streak=0;
+ if(ok){QS.ok++;r.ok++;r.xp+=it.q.xp;S.xp+=it.q.xp;S.streak++;dailyEvent("quiz_ok")}else S.streak=0;
  if(!QS.done.includes(it.q.id))QS.done.push(it.q.id);
  store.set("qstats",QS);store.set("xp",S.xp);store.set("streak",S.streak);
 }
