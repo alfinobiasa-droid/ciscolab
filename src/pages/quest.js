@@ -1,8 +1,9 @@
 import QUESTS from "../data/quests.json";
-import {toast, store, S, $} from "../core.js";
+import {toast, xpPop, store, S, $} from "../core.js";
 import {go} from "../main.js";
-import {RT, SW, LX, lxAt} from "../sim/engine.js";
+import {withDevice, sbRun, RT, SW, LX, lxAt} from "../sim/engine.js";
 import {sameNet} from "../sim/net.js";
+import {has} from "./reference.js";
 
 const QK=store.get("quests",{done:{}});
 const RULES={
@@ -39,7 +40,9 @@ const RULES={
  path:(o,r)=>{const n=lxAt(o,r.path);return!!n&&n.t===r.type},
  mode:(o,r)=>{const n=lxAt(o,r.path);return!!n&&(n.m&0o777)===parseInt(r.value,8)},
  owner:(o,r)=>{const n=lxAt(o,r.path);return!!n&&n.o===r.value},
- user:(o,r)=>o.users.includes(r.value)
+ user:(o,r)=>o.users.includes(r.value),
+ cmd_out:(o,r)=>withDevice(o,()=>{const m=o.mode,c=o.cur;o.mode="priv";const out=sbRun(r.cmd);o.mode=m;o.cur=c;return out}).join("\n").includes(r.has),
+ ports_same_vlan:(o,r)=>{const a=o.ifs[r.a],b=o.ifs[r.b];return a.mode==="access"&&b.mode==="access"&&a.vlan===b.vlan}
 };
 const check=r=>RULES[r.test](r.dev==="linux"?LX:r.dev==="switch"?SW:RT,r);
 
@@ -61,7 +64,7 @@ function renderQuest(){
 document.addEventListener("click",e=>{
  const t=e.target.closest("[data-qk]");if(!t)return;
  const q=QUESTS.find(x=>x.id==t.dataset.qk);
- if(q.obj.every(o=>check(o.rule))){QK.done[q.id]=true;S.xp+=q.xp;store.set("xp",S.xp);store.set("quests",QK);toast(`Quest selesai! +${q.xp} XP`)}
+ if(q.obj.every(o=>check(o.rule))){QK.done[q.id]=true;S.xp+=q.xp;xpPop(q.xp);store.set("xp",S.xp);store.set("quests",QK);toast(`Quest selesai! +${q.xp} XP`)}
  else toast("Target belum lengkap. Cek di Sandbox lalu coba lagi.");
  renderQuest();
 });

@@ -1,6 +1,27 @@
 import {store, $, esc} from "../core.js";
+import {pool} from "./quiz.js";
 import {useDevice, lxInit, sbInit, sbReset, sbRun, RT, SW, LX, SB, LXHELP, LXCHIPS, CHIPS, HELP, sbPrompt, HELPSW, SWCHIPS} from "../sim/engine.js";
 
+const CMDLIST={
+ "r:user":"enable|ping |traceroute |show ip interface brief|show ip route|show interfaces|show ip protocols|simulate ",
+ "r:priv":"disable|configure terminal|ping |traceroute |show running-config|show startup-config|show ip interface brief|show ip route|show interfaces|show ip protocols|show access-lists|copy running-config startup-config|simulate |exit",
+ "r:config":"hostname |interface |ip route |no ip route |ip dhcp pool |ip dhcp excluded-address |ip nat inside source list |access-list |no access-list |router rip|router ospf |router eigrp |enable secret |banner motd |line console 0|do show |end|exit",
+ "r:if":"ip address |no ip address|no shutdown|shutdown|ip nat inside|ip nat outside|ip access-group |no ip access-group |exit|end",
+ "r:line":"password |login|exit|end","r:router":"network |version 2|no auto-summary|router-id |passive-interface |exit|end","r:dhcp":"network |default-router |dns-server |exit|end",
+ "s:user":"enable|show vlan brief|show interfaces trunk","s:priv":"disable|configure terminal|show vlan brief|show interfaces trunk|show interfaces|show running-config|show startup-config|copy running-config startup-config",
+ "s:config":"hostname |vlan |no vlan |interface |enable secret |banner motd |line console 0|do show |end|exit",
+ "s:if":"switchport mode access|switchport mode trunk|switchport access vlan |switchport trunk native vlan |switchport trunk allowed vlan |shutdown|no shutdown|exit|end","s:vlan":"name |exit|end","s:line":"password |login|exit|end",
+ "l":"pwd|cd |ls |ls -l |mkdir |touch |cp |cp -r |mv |rm |rm -r |rmdir |chmod |chown |useradd |passwd|whoami|cat |help|clear"};
+function sbComplete(inp){
+ const v=inp.value.replace(/^\s+/,""),low=v.toLowerCase();
+ const list=(CMDLIST[SB.dev==="linux"?"l":(SB.dev==="switch"?"s":"r")+":"+SB.mode]||"").split("|").filter(Boolean);
+ const c=list.filter(x=>x.startsWith(low));
+ if(!c.length)return;
+ if(c.length===1){inp.value=c[0];return}
+ let p=c[0];c.forEach(x=>{while(!x.startsWith(p))p=p.slice(0,-1)});
+ if(p.length>v.length)inp.value=p;
+ else{SB.lines.push(sbPrompt()+" "+v,c.map(x=>x.trim()).join("   "));sbDraw()}
+}
 function sbDraw(){
  $("#tout").innerHTML=SB.lines.map(l=>`<div class="tl">${esc(l)||"&nbsp;"}</div>`).join("");
  $("#tp").textContent=sbPrompt();
@@ -23,6 +44,7 @@ document.addEventListener("keydown",e=>{
   SB.hi=SB.hist.length;i.value="";sbSave();sbDraw();
  }else if(e.key==="ArrowUp"){e.preventDefault();if(SB.hi>0)i.value=SB.hist[--SB.hi]||""}
  else if(e.key==="ArrowDown"){e.preventDefault();if(SB.hi<SB.hist.length-1)i.value=SB.hist[++SB.hi];else{SB.hi=SB.hist.length;i.value=""}}
+ else if(e.key==="Tab"){e.preventDefault();sbComplete(i)}
 });
 document.addEventListener("click",e=>{
  const t=e.target.closest("[data-sb],[data-sbact]");
@@ -34,11 +56,11 @@ document.addEventListener("click",e=>{
  }
  if(e.target.closest("#term")&&!getSelection().toString())$("#tcmd").focus();
 });
-const pk=o=>({host:o.host,mode:o.mode,cur:o.cur,curV:o.curV,routes:o.routes,ifs:o.ifs,vlans:o.vlans,seen:o.seen,secret:o.secret,banner:o.banner,con:o.con,saved:o.saved,dhcp:o.dhcp,curP:o.curP,nat:o.nat,acls:o.acls,rp:o.rp,os:o.os,ei:o.ei,proto:o.proto,fs:o.fs,cwd:o.cwd,users:o.users});
+const pk=o=>({host:o.host,mode:o.mode,cur:o.cur,curV:o.curV,routes:o.routes,ifs:o.ifs,vlans:o.vlans,seen:o.seen,secret:o.secret,banner:o.banner,con:o.con,saved:o.saved,startup:o.startup,dhcp:o.dhcp,curP:o.curP,nat:o.nat,acls:o.acls,rp:o.rp,os:o.os,ei:o.ei,proto:o.proto,fs:o.fs,cwd:o.cwd,users:o.users});
 const sbSave=()=>store.set("sb2",{rt:pk(RT),sw:pk(SW),lx:pk(LX),dev:SB.dev});
 sbInit(RT,"router");sbInit(SW,"switch");lxInit(LX);
 {const old=store.get("sb",null),sv=store.get("sb2",null);
  if(old)Object.assign(RT,old);
  if(sv){Object.assign(RT,sv.rt);Object.assign(SW,sv.sw);if(sv.lx)Object.assign(LX,sv.lx);useDevice(sv.dev)}}
 
-export {sbDraw, renderSandbox, pk, sbSave};
+export {sbComplete, sbDraw, renderSandbox, CMDLIST, pk, sbSave};

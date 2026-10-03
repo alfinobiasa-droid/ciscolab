@@ -8,13 +8,15 @@ const wild=mk=>n2ip((~mk)>>>0);
 const bin=m=>[24,16,8,0].map(b=>((m>>>b)&255).toString(2).padStart(8,"0")).join(".");
 const validCidr=v=>/^\d{1,2}$/.test(v)&&+v<=32;
 const usable=n=>n>=32?1:n===31?2:2**(32-n)-2;
+const ipClass=ip=>{const a=+ip.split(".")[0];return a===127?"Loopback":a>=1&&a<=126?"A":a>=128&&a<=191?"B":a>=192&&a<=223?"C":a>=224&&a<=239?"D (multicast)":a>=240?"E (cadangan)":"-"};
+const bitsBar=n=>`<div class="bits" role="img" aria-label="${n} bit network, ${32-n} bit host">${Array.from({length:32},(_,i)=>`<i class="${i<n?"":"h"}"></i>`).join("")}</div><div class="bits-leg"><span>■ Network (${n} bit)</span><span class="h">■ Host (${32-n} bit)</span></div>`;
 function snRows(){
  const err=m=>({err:m});
  if(SN.mode==="calc"){
   if(!isIp(SN.ip))return err("IP address tidak valid. Contoh: 192.168.1.0");
   if(!validCidr(SN.cidr))return err("CIDR harus angka 0 sampai 32.");
   const n=+SN.cidr,mk=cidrMask(n),net=(ip2n(SN.ip)&mk)>>>0,bc=(net|~mk)>>>0,one=n>=31;
-  return{rows:[["Network Address",n2ip(net)],["Broadcast Address",n2ip(bc)],["Subnet Mask",n2ip(mk)],["Wildcard Mask",wild(mk)],["First Host",n2ip(one?net:net+1)],["Last Host",n2ip(one?bc:bc-1)],["Jumlah Host",String(usable(n))],["Notasi",n2ip(net)+"/"+n]],note:one?"/31 dipakai untuk link point-to-point, /32 untuk satu host.":""};
+  return{rows:[["Network Address",n2ip(net)],["Broadcast Address",n2ip(bc)],["Subnet Mask",n2ip(mk)],["Wildcard Mask",wild(mk)],["First Host",n2ip(one?net:net+1)],["Last Host",n2ip(one?bc:bc-1)],["Jumlah Host",String(usable(n))],["Notasi",n2ip(net)+"/"+n],["Kelas IP",ipClass(SN.ip)]],bits:n,note:one?"/31 dipakai untuk link point-to-point, /32 untuk satu host.":""};
  }
  if(SN.mode==="c2m"){
   if(!validCidr(SN.cidr))return err("CIDR harus angka 0 sampai 32.");
@@ -27,7 +29,7 @@ function snRows(){
 }
 function snDraw(){
  const r=snRows();
- $("#snout").innerHTML=r.err?`<div class="fb no"><b>${r.err}</b></div>`:r.rows.map(x=>`<button class="row" data-cp="${x[1]}"><span>${x[0]}</span><b>${x[1]}</b></button>`).join("")+`<p style="color:var(--mute);font-size:.85rem;margin:10px 0 0">Ketuk baris untuk menyalin.${r.note?" "+r.note:""}</p>`;
+ $("#snout").innerHTML=r.err?`<div class="fb no"><b>${r.err}</b></div>`:r.rows.map(x=>`<button class="row" data-cp="${x[1]}"><span>${x[0]}</span><b>${x[1]}</b></button>`).join("")+(r.bits!=null?bitsBar(r.bits):"")+`<p style="color:var(--mute);font-size:.85rem;margin:10px 0 0">Ketuk baris untuk menyalin.${r.note?" "+r.note:""}</p>`;
 }
 function renderSubnet(){
  const inp=(id,label,val,mode)=>`<label class="fld">${label}<input class="inp" id="${id}" inputmode="${mode}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(val)}"></label>`;
@@ -50,4 +52,4 @@ document.addEventListener("click",e=>{
  try{navigator.clipboard.writeText(v).then(ok,no)}catch(x){no()}
 });
 
-export {snRows, snDraw, renderSubnet, SN, SNMODES, cidrMask, wild, bin, validCidr, usable};
+export {snRows, snDraw, renderSubnet, SN, SNMODES, cidrMask, wild, bin, validCidr, usable, ipClass, bitsBar};

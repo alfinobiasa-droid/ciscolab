@@ -6,8 +6,10 @@ import LESSONS from "../data/lessons.json";
 import {$, esc, hl} from "../core.js";
 import {go} from "../main.js";
 import {Q} from "./quiz.js";
+import {TS, T} from "./trouble.js";
 import {setLesson, openModule, renderModule, unlocked} from "./lesson.js";
 import {KG, emptyBox, searchBox} from "./reference.js";
+import {labOpen, LABS, LAB} from "./lab.js";
 
 const SR={q:"",all:{}};
 function searchResults(q){
@@ -18,7 +20,8 @@ function searchResults(q){
   les:MODULES.flatMap(md=>LESSONS[md.id].map((l,i)=>({md,i,l}))).filter(o=>m(o.l.slice(0,4).join(" "))),
   cmd:CMDS.filter(c=>m(c.join(" "))),
   gl:GLOSS.filter(g=>m(g.join(" "))),
-  qs:QUESTIONS.filter(x=>m([x.question,x.code,x.category,...x.options].join(" ")))
+  qs:QUESTIONS.filter(x=>m([x.question,x.code,x.category,...x.options].join(" "))),
+  tr:[...TS.map(x=>({id:x.id,title:x.title,exp:x.exp})),...LABS.map(x=>({id:x.id,title:x.title,exp:x.exp,lab:1,lvl:x.lvl}))].filter(x=>m(x.title+" "+x.exp))
  };
 }
 function searchDraw(){
@@ -37,6 +40,7 @@ function searchDraw(){
  +grp("Materi",r.les,o=>card(`<b>${hl(o.l[0],q)}</b>`,`Modul ${o.md.id}: ${esc(o.md.title)}`,"Buka",`data-sr="les" data-v="${o.md.id}:${o.i}"`))
  +grp("Command",r.cmd,c=>card(`<code class="cm">${hl(c[1],q)}</code>`,hl(c[2],q),"Salin",`data-cp="${esc(c[1])}"`))
  +grp("Istilah",r.gl,g=>card(`<b>${hl(g[0],q)}</b>`,hl(g[1],q),"Lihat",`data-sr="gl" data-v="${esc(g[0])}"`))
+ +grp("Troubleshooting",r.tr,x=>card(`<b>${hl(x.title,q)}</b>`,x.lab?"Lab interaktif · "+x.lvl:"Kasus pilihan ganda","Buka",`data-sr="tr" data-v="${x.lab?"lab:"+x.id:"case:"+x.id}"`))
  +grp("Soal",r.qs,x=>card(`<b>${hl(x.question+(x.code?" "+x.code.replace(/\n/g," "):""),q)}</b>`,`${x.category} · Jawaban: ${esc(x.options[x.answer])}`,"Kuis",`data-sr="qz" data-v="${x.category}"`));
 }
 function renderSearch(){
@@ -54,6 +58,7 @@ document.addEventListener("click",e=>{
  if(a==="les"){const[id,i]=v.split(":").map(Number);openModule(id);if(unlocked(id,i))setLesson(i);return renderModule()}
  if(a==="gl"){KG.q=v;return go("kamus")}
  if(a==="qz"){Q.cat=v;Q.run=null;return go("kuis")}
+ if(a==="tr"){const[k,id]=v.split(":");if(k==="lab"){LAB.on=true;labOpen(id)}else{LAB.on=false;T.cur=+id;T.sel=null;T.gain=false}return go("trouble")}
 });
 
 export {searchResults, searchDraw, renderSearch, SR};

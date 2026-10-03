@@ -12,6 +12,12 @@
   "access-list 10 deny 192.168.1.50"
  ],
  [
+  "ARP",
+  "Protokol yang memetakan alamat IP ke MAC address pada satu jaringan.",
+  "PC menanyakan MAC milik 192.168.1.1 sebelum mengirim frame.",
+  "arp -a"
+ ],
+ [
   "CIDR",
   "Notasi /n yang menyatakan jumlah bit network pada alamat IP.",
   "192.168.1.0/24 sama dengan mask 255.255.255.0.",
@@ -54,16 +60,40 @@
   "ip default-gateway [ip]"
  ],
  [
+  "IP Address",
+  "Alamat logis di Layer 3 yang mengidentifikasi host dan jaringannya.",
+  "192.168.1.10/24",
+  "ip address 192.168.1.1 255.255.255.0"
+ ],
+ [
   "IP Spoofing",
   "Serangan dengan memalsukan alamat asal paket untuk menipu penerima atau melewati firewall.",
   "Paket seolah berasal dari host tepercaya.",
   ""
  ],
  [
+  "LAN",
+  "Jaringan lokal yang mencakup area terbatas seperti lab atau gedung.",
+  "Semua PC di lab terhubung lewat satu switch.",
+  ""
+ ],
+ [
+  "MAC Address",
+  "Alamat fisik 48 bit pada kartu jaringan, dipakai di Layer 2.",
+  "aaaa.bbbb.cccc dipelajari switch di Fa0/1.",
+  "show mac address-table"
+ ],
+ [
   "NAT",
   "Penerjemahan IP private ke IP public agar host bisa keluar ke internet.",
   "Banyak PC 192.168.x.x memakai satu IP public.",
   "ip nat inside source list 1 interface g0/1 overload"
+ ],
+ [
+  "OSI",
+  "Model referensi tujuh lapis: Physical, Data Link, Network, Transport, Session, Presentation, Application.",
+  "Switch bekerja di Layer 2, router di Layer 3.",
+  ""
  ],
  [
   "OSPF",
@@ -96,6 +126,12 @@
   "show ip route"
  ],
  [
+  "Routing",
+  "Proses menentukan jalur paket antar jaringan memakai routing table.",
+  "R1 meneruskan paket ke 10.0.0.2 lewat static route.",
+  "show ip route"
+ ],
+ [
   "Subnet Mask",
   "Penentu bagian network dan bagian host pada alamat IP.",
   "255.255.255.0 berarti 24 bit network.",
@@ -108,10 +144,22 @@
   "show mac address-table"
  ],
  [
+  "TCP",
+  "Protokol transport yang andal: berorientasi koneksi, ada urutan dan pengiriman ulang.",
+  "HTTP, SSH, dan email memakai TCP.",
+  ""
+ ],
+ [
   "Trunk",
   "Port yang membawa banyak VLAN antar switch dengan tag 802.1Q.",
   "Link dua switch yang membawa VLAN 10 dan 20.",
   "switchport mode trunk"
+ ],
+ [
+  "UDP",
+  "Protokol transport tanpa koneksi yang cepat tetapi tidak menjamin pengiriman.",
+  "DNS dan streaming suara memakai UDP.",
+  ""
  ],
  [
   "Virtualisasi",
@@ -129,6 +177,12 @@
   "VLSM",
   "Teknik membagi jaringan menjadi subnet dengan ukuran berbeda sesuai kebutuhan host.",
   "WLAN 101 host memakai /25, LAN 51 host memakai /26.",
+  ""
+ ],
+ [
+  "WAN",
+  "Jaringan yang menghubungkan lokasi berjauhan lewat penyedia layanan.",
+  "Kantor pusat dan cabang dihubungkan lewat link ISP.",
   ""
  ]
 ]

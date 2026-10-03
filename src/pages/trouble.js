@@ -1,5 +1,6 @@
-import {dailyEvent, store, S, $, esc} from "../core.js";
+import {xpPop, dailyEvent, store, S, $, esc} from "../core.js";
 import {go} from "../main.js";
+import {renderLab, LAB} from "./lab.js";
 
 const CAUSES=[
 ["VLAN salah","bandingkan VLAN kedua port dengan show vlan brief."],
@@ -38,9 +39,10 @@ const TS=[
 const T={cur:null,sel:null,gain:false};
 const TK=store.get("trouble",{done:{}});
 function renderTrouble(){
+ if(LAB.on)return renderLab();
  const v=$("#view"),d=Object.keys(TK.done).length;
  if(T.cur==null){
-  v.innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Trouble</h1><p style="color:var(--mute);margin:0 0 14px">Baca topologi dan output, lalu tentukan penyebabnya. ${d} dari ${TS.length} kasus selesai.</p>
+  v.innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Trouble</h1><div class="seg" style="margin-bottom:12px"><button class="chip" data-lab="cases" aria-pressed="true">Kasus</button><button class="chip" data-lab="home" aria-pressed="false">Lab Interaktif</button></div><p style="color:var(--mute);margin:0 0 14px">Baca topologi dan output, lalu tentukan penyebabnya. ${d} dari ${TS.length} kasus selesai.</p>
   <div class="grid">${TS.map(t=>{const ok=TK.done[t.id];return `<article class="mod" style="--c:${ok?"#1a9b5c":"var(--orange)"}"><div><div class="n">Kasus ${t.id}</div><h3>${t.title}</h3></div><div class="meta"><span class="tag">${ok?"Selesai ✓":"Belum selesai"}</span><span class="tag o">+10 XP</span></div><button class="go" data-tb="open" data-v="${t.id}">${ok?"Ulangi Kasus":"Buka Kasus"}</button></article>`}).join("")}</div>`;
   return;
  }
@@ -50,7 +52,7 @@ function renderTrouble(){
   <button class="act" data-tb="next">${TS.some(x=>x.id>t.id)?"Kasus Berikutnya":"Selesai"}</button>`:"";
  v.innerHTML=`<button class="chip" data-tb="list" style="margin-bottom:10px">← Semua kasus</button>
  <div class="qcard"><div class="qtop"><span>Kasus ${t.id} / ${TS.length}</span></div>
- <h3 style="margin:8px 0 0">PC1 tidak dapat melakukan ping ke PC2.</h3>
+ <h1 class="pg" style="margin:8px 0 0;font-size:1.15rem">PC1 tidak dapat melakukan ping ke PC2.</h1>
  <div class="topo">${t.topo.map((n,i)=>`${i?'<span class="link"></span>':""}<div class="node"><div style="font-size:1.6rem">${n[0]}</div><b>${n[1]}</b>${n[2].map(l=>`<small>${esc(l)}</small>`).join("")}</div>`).join("")}</div>
  ${t.out?`<pre class="code">${esc(t.out)}</pre>`:""}
  <b>Apa penyebabnya?</b>
@@ -63,7 +65,7 @@ document.addEventListener("click",e=>{
  else if(a==="list")T.cur=null;
  else if(a==="pick"&&T.sel==null){
   const s=TS.find(x=>x.id===T.cur);T.sel=v;
-  if(v===s.ans){S.streak++;dailyEvent("trouble");if(!TK.done[s.id]){TK.done[s.id]=true;T.gain=true;S.xp+=10;store.set("xp",S.xp);store.set("trouble",TK)}}else S.streak=0;
+  if(v===s.ans){S.streak++;dailyEvent("trouble");if(!TK.done[s.id]){TK.done[s.id]=true;T.gain=true;S.xp+=10;xpPop(10);store.set("xp",S.xp);store.set("trouble",TK)}}else S.streak=0;
   store.set("streak",S.streak);
  }
  else if(a==="next"){const nx=TS.find(x=>x.id>T.cur);T.cur=nx?nx.id:null;T.sel=null;T.gain=false}

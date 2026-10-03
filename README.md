@@ -14,6 +14,8 @@ npm run build    # hasil di folder dist/
 - src/main.js: titik masuk, router (render, go, navigasi bawah), dan event global
 - src/core.js: state bersama, localStorage (store), XP/level, helper DOM (\$, esc, hl, toast)
 - src/pages/dashboard.js: halaman Home (level, XP, lanjutkan belajar, statistik, quest harian, rekomendasi)
+- src/pages/lab.js: lab troubleshooting interaktif (topologi berstatus, terminal, 5 skenario Easy/Medium/Hard)
+- src/pages/badges.js: badge dan notifikasi unlock
 - src/pages/home.js: daftar modul, pencarian dan filter kategori
 - src/pages/lesson.js: halaman detail modul, materi, dan mini quiz
 - src/pages/quiz.js: kuis acak, mode latihan dan mode ujian (timer, pembahasan), XP, streak, hasil

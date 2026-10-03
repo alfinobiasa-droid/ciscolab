@@ -23,6 +23,7 @@ function renderNav(){
 
 function render(){
  renderNav();
+ {const vw=$("#view");vw.classList.remove("pgin");void vw.offsetWidth;vw.classList.add("pgin");vw.focus({preventScroll:true})}
  const p=PAGES.find(x=>x.k===S.page)||PAGES[0];
  if(p.k==="kuis"&&Q.run&&Q.run.i>=Q.run.items.length)Q.run=null;
  S.page==="cari"?renderSearch():S.page==="menu"?renderMenu():p.k==="dashboard"?renderDashboard():p.k==="modul"?(MD.id?renderModule():renderModules()):p.k==="kuis"?renderQuiz():p.k==="sandbox"?renderSandbox():p.k==="quest"?renderQuest():p.k==="trouble"?renderTrouble():p.k==="subnet"?renderSubnet():p.k==="cheat"?renderCheat():p.k==="kamus"?renderKamus():renderSoon(p);

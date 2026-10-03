@@ -5,6 +5,7 @@ import {wild, bin} from "../pages/subnet.js";
 
 const RT={},SW={},LX={};let SB=RT;
 function useDevice(d){SB=d==="switch"?SW:d==="linux"?LX:RT}
+function withDevice(o,f){const p=SB;SB=o;try{return f()}finally{SB=p}}
 const mkdirNode=(m=0o755,w="root")=>({t:"d",m,o:w,g:w,k:{}});
 const mkfileNode=(m=0o644,w="root")=>({t:"f",m,o:w,g:w,k:{}});
 function lxInit(o){
@@ -117,7 +118,7 @@ function sbInit(o,dev){
  const sw=dev==="switch",ifc=()=>({ip:"",mask:"",up:false,nat:"",acl:{}}),port=()=>({up:true,mode:"access",vlan:1,native:1,allowed:"all"}),ifs={};
  if(sw)["FastEthernet0/1","FastEthernet0/2","FastEthernet0/3","FastEthernet0/4","GigabitEthernet0/1"].forEach(k=>ifs[k]=port());
  else["GigabitEthernet0/0","GigabitEthernet0/1"].forEach(k=>ifs[k]=ifc());
- Object.assign(o,{dev,host:sw?"Switch":"Router",mode:"user",cur:null,curV:null,routes:[],seen:{},hist:[],hi:0,vlans:{1:{name:"default"}},secret:"",banner:"",con:{pw:"",login:false},saved:false,dhcp:{ex:[],pools:{}},curP:null,nat:[],acls:{},rp:{on:false,ver:1,nets:[],auto:true},os:{pid:"",rid:"",nets:[],pass:[]},ei:{as:"",nets:[],auto:true},proto:"",ifs,lines:[`Simulator ${sw?"Switch":"Router"}. Ketik ? untuk bantuan.`]});
+ Object.assign(o,{dev,host:sw?"Switch":"Router",mode:"user",cur:null,curV:null,routes:[],seen:{},hist:[],hi:0,vlans:{1:{name:"default"}},secret:"",banner:"",con:{pw:"",login:false},saved:false,startup:null,dhcp:{ex:[],pools:{}},curP:null,nat:[],acls:{},rp:{on:false,ver:1,nets:[],auto:true},os:{pid:"",rid:"",nets:[],pass:[]},ei:{as:"",nets:[],auto:true},proto:"",ifs,lines:[`Simulator ${sw?"Switch":"Router"}. Ketik ? untuk bantuan.`]});
 }
 function sbReset(){SB.dev==="linux"?lxInit(SB):sbInit(SB,SB.dev)}
 function swVlans(){
@@ -168,6 +169,15 @@ function sbSim(w){
  const bl=a&&!a.ok?[a,short(inI.name),"in"]:b&&!b.ok?[b,short(outI.name),"out"]:null;
  return[head,"Masuk : "+short(inI.name)+t(a,"in"),"Keluar: "+short(outI.name)+" ("+via+")"+t(b,"out"),bl?"Hasil : DIBLOKIR oleh ACL "+bl[0].id+" pada "+bl[1]+" ("+bl[2]+"), aturan: "+bl[0].line:"Hasil : DITERUSKAN"];
 }
+function sbTrace(t){
+ if(!isIp(t))return["% Unrecognized host or address, or protocol not running."];
+ const c=conn(),h=["Type escape sequence to abort.","Tracing the route to "+t,""],ms=" 4 msec 2 msec 3 msec";
+ if(c.some(x=>x.ip===t||sameNet(x.ip,t,x.mask)))return[...h,"  1 "+t+ms];
+ const r=SB.routes.filter(r=>netOf(t,r.mask)===r.net&&c.some(x=>sameNet(x.ip,r.nh,x.mask))).sort((a,b)=>maskLen(b.mask)-maskLen(a.mask))[0];
+ if(r)return[...h,"  1 "+r.nh+ms,"  2 "+t+ms];
+ return[...h,"  1  *  *  *","  2  *  *  *","  3  *  *  *"];
+}
+const sbIfaces=()=>Object.entries(SB.ifs).flatMap(([k,v])=>[k+" is "+(v.up?"up, line protocol is up":"administratively down, line protocol is down"),...(v.ip?["  Internet address is "+v.ip+"/"+maskLen(v.mask)]:SB.dev==="router"?["  Internet protocol processing disabled"]:["  Switchport mode: "+v.mode+(v.mode==="access"?", VLAN "+v.vlan:"")]),"  MTU 1500 bytes, BW 100000 Kbit/sec","  0 packets input, 0 packets output",""]);
 const sbProto=()=>{
  const o=[];
  if(SB.rp.on)o.push('Routing Protocol is "rip"',"  Default version control: send version "+SB.rp.ver+", receive version "+SB.rp.ver,"  Automatic network summarization is "+(SB.rp.auto?"in effect":"not in effect"),"  Routing for Networks:",...SB.rp.nets.map(x=>"    "+x),"");
@@ -267,6 +277,9 @@ function sbRun(line){
   if(c0==="login"&&n===1){SB.con.login=true;return[]}
  }
  if(SB.dev==="router"){
+  if(M==="if"&&c0==="no"&&m(1,"ip",2)&&m(2,"access-group",3)&&n===5){const i=SB.ifs[SB.cur];if(i.acl&&i.acl[w[4].toLowerCase()]===w[3])delete i.acl[w[4].toLowerCase()];return[]}
+  if(cfg&&c0==="no"&&m(1,"access-list",3)&&n===3){delete SB.acls[w[2]];SB.mode="config";return[]}
+  if(cfg&&c0==="no"&&m(1,"ip",2)&&m(2,"route",2)&&n===6&&isIp(w[3])&&validMask(w[4])&&isIp(w[5])){SB.routes=SB.routes.filter(x=>!(x.net===netOf(w[3],w[4])&&x.mask===w[4]&&x.nh===w[5]));SB.mode="config";return[]}
   if(cfg&&c0==="router"&&n>=2){
    const k=w[1].toLowerCase();
    if(k==="rip"&&n===2){SB.rp.on=true;SB.proto="rip";SB.mode="router";return[]}
@@ -313,7 +326,7 @@ function sbRun(line){
   }
  }
  if(M==="if"&&SB.dev==="router"&&c0==="no"&&m(1,"ip",2)&&m(2,"address",2)&&n===3){Object.assign(SB.ifs[SB.cur],{ip:"",mask:""});return[]}
- if(M==="priv"&&m(0,"copy",2)&&m(1,"running-config",3)&&m(2,"startup-config",3)&&n===3){SB.saved=true;return["Destination filename [startup-config]?","Building configuration...","[OK]"]}
+ if(M==="priv"&&m(0,"copy",2)&&m(1,"running-config",3)&&m(2,"startup-config",3)&&n===3){SB.saved=true;SB.startup=sbConfig();return["Destination filename [startup-config]?","Building configuration...","[OK]"]}
  if(SB.dev==="switch"){
   if(cfg&&c0==="vlan"&&n===2){const v=+w[1];if(!(v>=1&&v<=4094))return[bad];SB.vlans[v]=SB.vlans[v]||{name:"VLAN"+String(v).padStart(4,"0")};SB.mode="vlan";SB.curV=v;dailyEvent("vlan");return[]}
   if(M==="vlan"&&c0==="name"&&n===2){SB.vlans[SB.curV].name=w[1];return[]}
@@ -334,6 +347,8 @@ function sbRun(line){
  if(m(0,"show",2)&&show){
   if(SB.dev==="switch"&&m(1,"vlan",2)&&m(2,"brief")&&n===3)return swVlans();
   if(SB.dev==="switch"&&m(1,"interfaces",3)&&m(2,"trunk",2)&&n===3)return swTrunk();
+  if(M==="priv"&&m(1,"startup-config",3)&&n===2)return SB.startup||["startup-config is not present"];
+  if(m(1,"interfaces",3)&&n===2)return sbIfaces();
   if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"nat",2)&&m(3,"translations",3)&&n===4)return["Pro Inside global      Inside local       Outside local      Outside global"];
   if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"dhcp",2)&&m(3,"binding",3)&&n===4)return["IP address       Client-ID/Hardware address    Lease expiration        Type"];
   if(SB.dev==="router"&&m(1,"access-lists",3)&&n===2)return sbAcls();
@@ -344,8 +359,9 @@ function sbRun(line){
   if(M==="priv"&&m(1,"running-config",3)&&n===2)return sbConfig();
  }
  if(SB.dev==="router"&&m(0,"ping",3)&&show&&n===2)return sbPing(w[1]);
+ if(SB.dev==="router"&&m(0,"traceroute",5)&&show&&n===2)return sbTrace(w[1]);
  const known=["enable","disable","configure","hostname","interface","ip","no","show","ping","exit","end","shutdown"];
  return[c0.length>=2&&known.some(k=>k.startsWith(c0))?bad:"Command not supported in simulator."];
 }
 
-export {useDevice, lxInit, lxRun, sbInit, sbReset, swVlans, swTrunk, swConfig, aclEval, sbSim, sbBrief, sbRoutes, sbConfig, sbPing, sbRun, RT, SW, LX, SB, mkdirNode, mkfileNode, LXHELP, LXCHIPS, lxParts, lxAt, lxNode, lxModeStr, CHIPS, HELP, conn, sbPrompt, HELPSW, SWCHIPS, short, PORTS, spec, specTxt, specHit, sbProto, sbAcls, svcLines, secLines};
+export {useDevice, withDevice, lxInit, lxRun, sbInit, sbReset, swVlans, swTrunk, swConfig, aclEval, sbSim, sbTrace, sbBrief, sbRoutes, sbConfig, sbPing, sbRun, RT, SW, LX, SB, mkdirNode, mkfileNode, LXHELP, LXCHIPS, lxParts, lxAt, lxNode, lxModeStr, CHIPS, HELP, conn, sbPrompt, HELPSW, SWCHIPS, short, PORTS, spec, specTxt, specHit, sbIfaces, sbProto, sbAcls, svcLines, secLines};

@@ -1,8 +1,9 @@
 import MODULES from "../data/modules.json";
 import LESSONS from "../data/lessons.json";
-import {dailyEvent, store, S, $, esc} from "../core.js";
+import {xpPop, dailyEvent, store, S, $, esc} from "../core.js";
 import {render, go} from "../main.js";
 import {L, pct, shuffle} from "./quiz.js";
+import {useDevice} from "../sim/engine.js";
 
 /* Format materi: [judul, penjelasan, contoh/output, tips, pertanyaan, pilihan, indeks jawaban] */
 
@@ -16,11 +17,35 @@ function openModule(id){MD.id=id;store.set("lastModule",id);setLesson(Math.min(d
 function completeLesson(){
  const id=MD.id,n=LESSONS[id].length;
  (LS[id]=LS[id]||[]).push(MD.i);
- S.xp+=10;S.streak++;dailyEvent("lesson");MD.msg="✓ Benar! +10 XP";
+ S.xp+=10;S.streak++;dailyEvent("lesson");xpPop(10);MD.msg="✓ Benar! +10 XP";
  const pct=Math.round(LS[id].length/n*100);S.progress[id]=pct;
  if(pct===100&&!MDONE[id]){MDONE[id]=true;S.xp+=50;MD.msg+=" · Modul selesai! +50 XP";store.set("modDone",MDONE)}
  store.set("lessons",LS);store.set("progress",S.progress);store.set("xp",S.xp);store.set("streak",S.streak);
 }
+function topoSvg(nodes){
+ const n=nodes.length,W=n*110,cy=36;
+ const ico=(t,x)=>t==="rt"?`<circle cx="${x}" cy="${cy}" r="18"/><path d="M${x-9} ${cy}h18M${x} ${cy-9}v18" stroke-width="1.5"/>`
+  :t==="sw"?`<rect x="${x-24}" y="${cy-12}" width="48" height="24" rx="5"/><path d="M${x-14} ${cy-3}h28M${x-14} ${cy+4}h28" stroke-width="1.5"/>`
+  :t==="srv"?`<rect x="${x-16}" y="${cy-20}" width="32" height="40" rx="4"/><path d="M${x-9} ${cy-9}h18M${x-9} ${cy}h18" stroke-width="1.5"/>`
+  :t==="cloud"?`<ellipse cx="${x}" cy="${cy}" rx="26" ry="16"/>`
+  :`<rect x="${x-18}" y="${cy-14}" width="36" height="26" rx="4"/><path d="M${x-8} ${cy+18}h16" stroke-width="2"/>`;
+ let s="";
+ nodes.forEach((nd,i)=>{
+  const x=55+i*110,st=nd[2]==="ok"||nd[2]==="bad"?nd[2]:null,sub=st?nd[3]:nd[2];
+  if(i)s+=`<path d="M${x-84} ${cy}H${x-26}" stroke="var(--cyan)" stroke-width="2"/>`;
+  s+=`<g fill="var(--card)" stroke="currentColor" stroke-width="2">${ico(nd[1],x)}</g><text x="${x}" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">${esc(nd[0])}</text>`;
+  if(sub)s+=`<text x="${x}" y="91" text-anchor="middle" font-size="9.5" fill="var(--mute)">${esc(sub)}</text>`;
+  if(st)s+=`<circle cx="${x+22}" cy="${cy-18}" r="5" fill="${st==="ok"?"#1a9b5c":"#d63c4f"}" stroke="var(--card)" stroke-width="1.5"/>`;
+ });
+ return `<div class="topo-wrap"><svg viewBox="0 0 ${W} 100" style="min-width:${Math.min(W,330)}px;width:100%;max-width:${W}px;display:block;margin:0 auto" role="img" aria-label="Topologi: ${esc(nodes.map(x=>x[0]).join(", "))}">${s}</svg></div>`;
+}
+const TRY={1:"router",2:"switch",3:"router",4:"router",5:"subnet",6:"trouble",7:"router",8:"router",9:"linux",10:"linux",11:"router"};
+document.addEventListener("click",e=>{
+ const t=e.target.closest("[data-try]");if(!t)return;
+ const d=TRY[t.dataset.try];
+ if(d==="subnet"||d==="trouble")return go(d);
+ useDevice(d);go("sandbox");
+});
 function renderModule(){
  const m=MODULES.find(x=>x.id===MD.id),ls=LESSONS[m.id],l=ls[MD.i],done=isDone(m.id,MD.i),solved=done||MD.sel!=null;
  const pct=Math.round(doneSet(m.id).length/ls.length*100),last=MD.i===ls.length-1;
@@ -28,8 +53,9 @@ function renderModule(){
  <div class="qcard" style="border-top:5px solid ${m.color}"><h1 class="pg" style="margin:0 0 8px;line-height:1.25">${m.title}</h1>
  <div class="meta"><span class="tag o">${m.level}</span><span class="tag">⏱ ${m.min} menit</span><span class="tag">Progress ${pct}%</span></div>
  <div class="bar" style="margin:12px 0 4px"><i style="width:${pct}%"></i></div>
+ <div style="margin:12px 0 4px"><b>Tujuan pembelajaran</b><ul class="goals">${(m.goals||[]).map(g=>`<li>${esc(g)}</li>`).join("")}</ul>${m.topo?`<b>Topologi</b>${topoSvg(m.topo)}`:""}</div>
  ${ls.map((x,i)=>{const d=isDone(m.id,i),u=unlocked(m.id,i);return `<button class="opt${i===MD.i?" sel":""}" data-md="go" data-v="${i}" ${u?"":"disabled"}><b>${d?"✓":u?i+1:"🔒"}</b><span>${x[0]}</span></button>`}).join("")}</div>
- <div class="qcard" style="margin-top:14px"><h3 style="margin:0 0 8px">${l[0]}</h3><p style="margin:0">${esc(l[1])}</p><pre class="code">${esc(l[2])}</pre>
+ <div class="qcard" style="margin-top:14px"><h3 style="margin:0 0 8px">${l[0]}</h3><p style="margin:0">${esc(l[1])}</p><pre class="code">${esc(l[2])}</pre><button class="chip" data-try="${m.id}" style="margin-bottom:6px">Coba di ${TRY[m.id]==="subnet"?"Kalkulator":TRY[m.id]==="trouble"?"Troubleshooting":"Sandbox"} →</button>
  <div class="fb ok" style="margin:12px 0"><b>Tips:</b> ${esc(l[3])}</div>
  <b>Mini quiz</b><p style="margin:4px 0 0">${esc(l[4])}</p>
  ${MD.order.map((oi,d)=>{const c=solved?(oi===l[6]?" ok":""):(MD.bad.includes(d)?" no":"");return `<button class="opt${c}" data-md="pick" data-v="${d}" ${solved||MD.bad.includes(d)?"disabled":""}><b>${L[d]}</b><span>${esc(l[5][oi])}</span></button>`}).join("")}
@@ -50,4 +76,4 @@ document.addEventListener("click",e=>{
  if(a!=="pick")window.scrollTo(0,0);
 });
 
-export {setLesson, openModule, completeLesson, renderModule, MD, LS, MDONE, doneSet, isDone, unlocked};
+export {setLesson, openModule, completeLesson, topoSvg, renderModule, MD, LS, MDONE, doneSet, isDone, unlocked, TRY};

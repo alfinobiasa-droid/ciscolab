@@ -33,11 +33,16 @@ const DQ=[
 const today=()=>new Date().toISOString().slice(0,10);
 const dailyState=()=>{const d=store.get("daily",null);return d&&d.date===today()?d:{date:today(),cnt:{},done:{}}};
 const dailyList=()=>{const k=Math.floor(Date.parse(today())/864e5)%DQ.length;return[0,1,2].map(i=>DQ[(k+i)%DQ.length])};
+let dqMute=false;
+const quietly=f=>{dqMute=true;try{return f()}finally{dqMute=false}};
+function xpPop(n){const el=document.createElement("div");el.className="xpop";el.textContent="+"+n+" XP";document.body.appendChild(el);setTimeout(()=>el.remove(),1200)}
 function dailyEvent(ev,by=1){
+ if(dqMute)return;
  const d=dailyState();d.cnt[ev]=(d.cnt[ev]||0)+by;
- dailyList().forEach(q=>{if(q.ev===ev&&!d.done[q.id]&&d.cnt[ev]>=q.n){d.done[q.id]=true;S.xp+=q.xp;store.set("xp",S.xp);toast("Quest harian selesai: "+q.t+" (+"+q.xp+" XP)")}});
+ {const A=store.get("ach",{});A[ev]=(A[ev]||0)+by;store.set("ach",A)}
+ dailyList().forEach(q=>{if(q.ev===ev&&!d.done[q.id]&&d.cnt[ev]>=q.n){d.done[q.id]=true;S.xp+=q.xp;store.set("xp",S.xp);xpPop(q.xp);toast("Quest harian selesai: "+q.t+" (+"+q.xp+" XP)")}});
  store.set("daily",d);
 }
 const levelInfo=xp=>{let i=0;LEVELS.forEach((l,k)=>{if(xp>=l[0])i=k});const cur=LEVELS[i][0],nx=LEVELS[i+1];return{n:i+1,name:LEVELS[i][1],next:nx?nx[0]:null,nextName:nx?nx[1]:null,pct:nx?Math.round((xp-cur)/(nx[0]-cur)*100):100}};
 
-export {toast, dailyEvent, CATS, PAGES, store, LEVELS, levelOf, S, $, esc, hl, DQ, today, dailyState, dailyList, levelInfo};
+export {toast, xpPop, dailyEvent, CATS, PAGES, store, LEVELS, levelOf, S, $, esc, hl, DQ, today, dailyState, dailyList, dqMute, quietly, levelInfo};
