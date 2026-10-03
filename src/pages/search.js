@@ -40,7 +40,7 @@ function searchDraw(){
  +grp("Soal",r.qs,x=>card(`<b>${hl(x.question+(x.code?" "+x.code.replace(/\n/g," "):""),q)}</b>`,`${x.category} · Jawaban: ${esc(x.options[x.answer])}`,"Kuis",`data-sr="qz" data-v="${x.category}"`));
 }
 function renderSearch(){
- $("#view").innerHTML=`<h2 style="margin:4px 0 6px">Cari</h2><p style="color:var(--mute);margin:0 0 12px">Cari modul, materi, command, istilah, dan soal sekaligus.</p>
+ $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Cari</h1><p style="color:var(--mute);margin:0 0 12px">Cari modul, materi, command, istilah, dan soal sekaligus.</p>
  ${searchBox("gq","Cari: ip route, VLAN, OSPF, subnetting...",SR.q)}<div id="gres"></div>`;
  searchDraw();
 }

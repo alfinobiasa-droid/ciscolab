@@ -288,5 +288,15 @@
   "Linux",
   "ip a",
   "Melihat IP dan interface."
+ ],
+ [
+  "Troubleshooting",
+  "nslookup [domain]",
+  "Menguji resolusi DNS."
+ ],
+ [
+  "Routing",
+  "show ip protocols",
+  "Melihat protokol routing yang aktif."
  ]
 ]

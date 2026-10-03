@@ -114,9 +114,21 @@
   "switchport mode trunk"
  ],
  [
+  "Virtualisasi",
+  "Teknologi yang menjalankan beberapa sistem operasi sebagai mesin virtual pada satu komputer fisik.",
+  "Debian berjalan di VirtualBox di dalam Windows.",
+  ""
+ ],
+ [
   "VLAN",
   "Pemisahan logis satu jaringan menjadi beberapa broadcast domain.",
   "Sales di VLAN 10 dan Admin di VLAN 20.",
   "vlan 10"
+ ],
+ [
+  "VLSM",
+  "Teknik membagi jaringan menjadi subnet dengan ukuran berbeda sesuai kebutuhan host.",
+  "WLAN 101 host memakai /25, LAN 51 host memakai /26.",
+  ""
  ]
 ]

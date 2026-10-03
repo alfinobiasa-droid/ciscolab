@@ -25,7 +25,7 @@ function renderModule(){
  const m=MODULES.find(x=>x.id===MD.id),ls=LESSONS[m.id],l=ls[MD.i],done=isDone(m.id,MD.i),solved=done||MD.sel!=null;
  const pct=Math.round(doneSet(m.id).length/ls.length*100),last=MD.i===ls.length-1;
  $("#view").innerHTML=`<button class="chip" data-md="back" style="margin-bottom:10px">← Semua modul</button>
- <div class="qcard" style="border-top:5px solid ${m.color}"><h2 style="margin:0 0 8px;line-height:1.25">${m.title}</h2>
+ <div class="qcard" style="border-top:5px solid ${m.color}"><h1 class="pg" style="margin:0 0 8px;line-height:1.25">${m.title}</h1>
  <div class="meta"><span class="tag o">${m.level}</span><span class="tag">⏱ ${m.min} menit</span><span class="tag">Progress ${pct}%</span></div>
  <div class="bar" style="margin:12px 0 4px"><i style="width:${pct}%"></i></div>
  ${ls.map((x,i)=>{const d=isDone(m.id,i),u=unlocked(m.id,i);return `<button class="opt${i===MD.i?" sel":""}" data-md="go" data-v="${i}" ${u?"":"disabled"}><b>${d?"✓":u?i+1:"🔒"}</b><span>${x[0]}</span></button>`}).join("")}</div>
@@ -33,7 +33,7 @@ function renderModule(){
  <div class="fb ok" style="margin:12px 0"><b>Tips:</b> ${esc(l[3])}</div>
  <b>Mini quiz</b><p style="margin:4px 0 0">${esc(l[4])}</p>
  ${MD.order.map((oi,d)=>{const c=solved?(oi===l[6]?" ok":""):(MD.bad.includes(d)?" no":"");return `<button class="opt${c}" data-md="pick" data-v="${d}" ${solved||MD.bad.includes(d)?"disabled":""}><b>${L[d]}</b><span>${esc(l[5][oi])}</span></button>`}).join("")}
- ${MD.msg?`<div class="fb ok"><b>${MD.msg}</b></div>`:MD.bad.length&&!solved?`<div class="fb no"><b>✗ Belum tepat.</b> Baca penjelasan di atas, lalu coba lagi.</div>`:""}
+ ${MD.msg?`<div role="status" class="fb ok"><b>${MD.msg}</b></div>`:MD.bad.length&&!solved?`<div role="status" class="fb no"><b>✗ Belum tepat.</b> Baca penjelasan di atas, lalu coba lagi.</div>`:""}
  <div style="display:flex;gap:10px"><button class="act alt" style="flex:1;width:auto" data-md="prev" ${MD.i?"":"disabled"}>Materi Sebelumnya</button><button class="act" style="flex:1;width:auto" data-md="next" ${solved&&!last?"":"disabled"}>Materi Berikutnya</button></div></div>`;
 }
 document.addEventListener("click",e=>{

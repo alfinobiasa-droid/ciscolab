@@ -4,13 +4,14 @@ import {go} from "../main.js";
 
 const QCATS=["Semua","Dasar Cisco","VLAN","Routing","OSPF","Subnetting","Layanan","Keamanan","Linux","Troubleshooting"];
 const QS=store.get("qstats",{ans:0,ok:0,done:[]});
-const Q={n:10,cat:"Semua",exam:false,run:null};
+const Q={n:10,cat:"Semua",exam:false,sec:45,run:null};
 const L="ABCD";
 const pct=(a,b)=>b?Math.round(a/b*100):0;
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const pool=()=>QUESTIONS.filter(q=>Q.cat==="Semua"||q.category===Q.cat);
 
 function renderQuiz(){Q.run?(Q.run.i>=Q.run.items.length?quizResult():Q.run.exam?examQuestion():quizQuestion()):quizSetup()}
+const bumpCat=(c,ok)=>{QS.cat=QS.cat||{};const e=QS.cat[c]=QS.cat[c]||[0,0];e[1]++;if(ok)e[0]++};
 const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
 function examQuestion(){
  const r=Q.run,it=r.items[r.i],q=it.q,tot=r.items.length,left=Math.max(0,Math.round((r.deadline-Date.now())/1000));
@@ -28,7 +29,7 @@ function finishExam(){
  const r=Q.run;if(r.finished)return;r.finished=true;
  r.i=r.items.length;r.ok=r.items.filter((it,i)=>r.answers[i]===it.q.answer).length;r.xp=r.ok*10;
  S.xp+=r.xp;QS.ans+=r.answers.filter(a=>a!=null).length;QS.ok+=r.ok;
- r.items.forEach((it,i)=>{if(r.answers[i]!=null&&!QS.done.includes(it.q.id))QS.done.push(it.q.id)});
+ r.items.forEach((it,i)=>{if(r.answers[i]!=null){bumpCat(it.q.category,r.answers[i]===it.q.answer);if(!QS.done.includes(it.q.id))QS.done.push(it.q.id)}});
  store.set("qstats",QS);store.set("xp",S.xp);saveQuiz();
 }
 function examReview(r){
@@ -48,21 +49,21 @@ setInterval(()=>{
 function quizSetup(){
  const p=pool().length;
  const st=[["Total Soal",QUESTIONS.length],["Terjawab",QS.ans],["Benar",QS.ok],["Akurasi",pct(QS.ok,QS.ans)+"%"],["Total XP",S.xp],["🔥 Streak",S.streak+"x"]];
- $("#view").innerHTML=`<h2 style="margin:4px 0 12px">Kuis Cisco</h2>
+ $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 12px">Kuis Cisco</h1>
  <div class="stats">${st.map(x=>`<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("")}</div>
- <div class="qcard"><b>Mode</b><div class="seg" style="margin:8px 0 8px">${[["Latihan",false],["Ujian",true]].map(m=>`<button class="chip" data-q="mode" data-v="${m[1]}" aria-pressed="${Q.exam===m[1]}">${m[0]}</button>`).join("")}</div>${Q.exam?`<p style="color:var(--mute);font-size:.9rem;margin:0 0 14px">Ujian: batas waktu ${Math.ceil(Math.min(Q.n,p)*45/60)} menit (45 detik per soal), tanpa jawaban benar/salah sampai selesai, lalu ada pembahasan.</p>`:`<div style="height:8px"></div>`}<b>Jumlah soal</b><div class="seg" style="margin:8px 0 16px">${[10,20,50].map(n=>`<button class="chip" data-q="n" data-v="${n}" aria-pressed="${Q.n===n}">${n} Soal</button>`).join("")}</div>
+ <div class="qcard"><b>Mode</b><div class="seg" style="margin:8px 0 8px">${[["Latihan",false],["Ujian",true]].map(m=>`<button class="chip" data-q="mode" data-v="${m[1]}" aria-pressed="${Q.exam===m[1]}">${m[0]}</button>`).join("")}</div>${Q.exam?`<div class="seg" style="margin:0 0 8px">${[30,45,60].map(s=>`<button class="chip" data-q="sec" data-v="${s}" aria-pressed="${Q.sec===s}">${s} detik/soal</button>`).join("")}</div><p style="color:var(--mute);font-size:.9rem;margin:0 0 14px">Ujian: batas waktu ${Math.ceil(Math.min(Q.n,p)*Q.sec/60)} menit (${Q.sec} detik per soal), tanpa jawaban benar/salah sampai selesai, lalu ada pembahasan.</p>`:`<div style="height:8px"></div>`}<b>Jumlah soal</b><div class="seg" style="margin:8px 0 16px">${[10,20,50].map(n=>`<button class="chip" data-q="n" data-v="${n}" aria-pressed="${Q.n===n}">${n} Soal</button>`).join("")}</div>
  <b>Kategori</b><div class="seg" style="margin-top:8px">${QCATS.map(c=>`<button class="chip" data-q="cat" data-v="${c}" aria-pressed="${Q.cat===c}">${c}</button>`).join("")}</div>
  <p style="color:var(--mute);font-size:.9rem">Tersedia ${p} soal di kategori ini${p<Q.n?`, jadi kuis berisi ${p} soal.`:"."}</p>
  <button class="act" data-q="start">Mulai Kuis</button></div>`;
 }
 function startQuiz(){
  const items=shuffle(pool().slice()).slice(0,Q.n).map(q=>({q,order:shuffle([0,1,2,3])}));
- Q.run={items,i:0,ok:0,xp:0,sel:null,done:false,exam:Q.exam,answers:[],deadline:Date.now()+items.length*45000,finished:false};
+ Q.run={items,i:0,ok:0,xp:0,sel:null,done:false,exam:Q.exam,answers:[],deadline:Date.now()+items.length*Q.sec*1000,finished:false};
 }
 function quizQuestion(){
  const r=Q.run,it=r.items[r.i],q=it.q,tot=r.items.length,good=r.done&&it.order[r.sel]===q.answer;
  const right=it.order.indexOf(q.answer);
- const fb=r.done?`<div class="fb ${good?"ok":"no"}"><b>${good?"✓ Jawaban benar! +10 XP":"✗ Jawaban salah."}</b>${good?"":`<p>Jawaban benar: <b>${L[right]}. ${esc(q.options[q.answer])}</b></p>`}<p>${esc(q.explanation)}</p></div>
+ const fb=r.done?`<div role="status" class="fb ${good?"ok":"no"}"><b>${good?"✓ Jawaban benar! +10 XP":"✗ Jawaban salah."}</b>${good?"":`<p>Jawaban benar: <b>${L[right]}. ${esc(q.options[q.answer])}</b></p>`}<p>${esc(q.explanation)}</p></div>
  <button class="act" data-q="next">${r.i+1>=tot?"Lihat Hasil":"Soal Berikutnya"}</button>`
  :`<button class="act" data-q="answer" ${r.sel==null?"disabled":""}>Jawab</button>`;
  $("#view").innerHTML=`<div class="qcard"><div class="qtop"><span>${q.category} · ${q.difficulty}</span><span>Soal ${r.i+1} / ${tot}</span></div>
@@ -73,14 +74,14 @@ function quizQuestion(){
 function answerQuiz(){
  if(Q.run.exam)return examAnswer();
  const r=Q.run,it=r.items[r.i],ok=it.order[r.sel]===it.q.answer;
- r.done=true;QS.ans++;
+ r.done=true;QS.ans++;bumpCat(it.q.category,ok);
  if(ok){QS.ok++;r.ok++;r.xp+=it.q.xp;S.xp+=it.q.xp;S.streak++}else S.streak=0;
  if(!QS.done.includes(it.q.id))QS.done.push(it.q.id);
  store.set("qstats",QS);store.set("xp",S.xp);store.set("streak",S.streak);
 }
 function saveQuiz(){
  const h=store.get("quizHistory",[]);
- h.push({date:new Date().toISOString(),cat:Q.cat,score:Q.run.ok,total:Q.run.items.length,xp:Q.run.xp});
+ h.push({date:new Date().toISOString(),cat:Q.cat,score:Q.run.ok,total:Q.run.items.length,xp:Q.run.xp,exam:!!Q.run.exam});
  store.set("quizHistory",h.slice(-50));
 }
 function quizResult(){
@@ -95,6 +96,7 @@ document.addEventListener("click",e=>{
  const a=t.dataset.q,v=t.dataset.v,r=Q.run;
  if(a==="n")Q.n=+v;
  else if(a==="mode")Q.exam=v==="true";
+ else if(a==="sec")Q.sec=+v;
  else if(a==="cat")Q.cat=v;
  else if(a==="start"||a==="again")startQuiz();
  else if(a==="new")Q.run=null;
@@ -105,4 +107,4 @@ document.addEventListener("click",e=>{
  window.scrollTo(0,0);
 });
 
-export {renderQuiz, examQuestion, examAnswer, finishExam, examReview, quizSetup, startQuiz, quizQuestion, answerQuiz, saveQuiz, quizResult, QCATS, QS, Q, L, pct, shuffle, pool, fmt};
+export {renderQuiz, examQuestion, examAnswer, finishExam, examReview, quizSetup, startQuiz, quizQuestion, answerQuiz, saveQuiz, quizResult, QCATS, QS, Q, L, pct, shuffle, pool, bumpCat, fmt};

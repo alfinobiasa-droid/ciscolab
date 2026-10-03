@@ -1,3 +1,4 @@
+import "./pwa.js";
 import "./style.css";
 import {PAGES, store, S, $} from "./core.js";
 import {renderModules, renderList} from "./pages/home.js";

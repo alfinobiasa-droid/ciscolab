@@ -17,14 +17,16 @@ npm run build    # hasil di folder dist/
 - src/pages/lesson.js: halaman detail modul, materi, dan mini quiz
 - src/pages/quiz.js: kuis acak, mode latihan dan mode ujian (timer, pembahasan), XP, streak, hasil
 - src/pages/sandbox.js: tampilan terminal Sandbox (input, chip command, simpan state)
-- src/sim/engine.js: mesin simulator Router dan Switch (parser command, show, config; termasuk DHCP, NAT/PAT, ACL standar dan extended, serta perintah simulate untuk menguji ACL)
+- src/sim/engine.js: mesin simulator Router dan Switch (parser command, show, config; termasuk DHCP, NAT/PAT, ACL standar dan extended, RIP/OSPF/EIGRP, perintah simulate untuk menguji ACL, dan shell Linux simulasi dengan filesystem virtual)
 - src/sim/net.js: helper IP (validasi, mask, network address)
 - src/pages/quest.js: quest; aturan pemeriksa (RULES) membaca kondisi simulator
 - src/pages/trouble.js: kasus troubleshooting
 - src/pages/subnet.js: kalkulator subnet
 - src/pages/reference.js: cheat sheet dan kamus
 - src/pages/search.js: pencarian global
-- src/pages/settings.js: menu progres (ekspor, impor, reset)
+- src/pwa.js: mendaftarkan service worker (hanya pada build produksi)
+- public/sw.js, public/manifest.webmanifest, public/icons: berkas PWA agar aplikasi bisa dipasang dan berjalan offline
+- src/pages/settings.js: menu (progres, penguasaan per kategori, riwayat kuis, ekspor/impor/reset)
 - src/style.css: seluruh gaya (mobile-first)
 - src/data/modules.json: 6 modul
 - src/data/lessons.json: 18 materi. Format tiap materi: [judul, penjelasan, contoh, tips, pertanyaan, pilihan, indeks jawaban]
@@ -42,3 +44,9 @@ File .github/workflows/deploy.yml membangun dan memasang situs setiap push ke br
 
 ## Materi dari arsip jobsheet
 Modul 8 (Keamanan Jaringan) dan Modul 9 (Linux Debian dan Layanan Server) disusun dari jobsheet kelas XI TKJ, ditambah materi VLAN antar lantai, praktik 3 router, OSPF, EIGRP, dan RIP pada modul 2, 3, dan 4.
+
+## Mode offline (PWA)
+Setelah situs dibuka sekali lewat internet, berkas disimpan oleh service worker sehingga aplikasi tetap bisa dibuka tanpa sinyal dan bisa dipasang ke layar utama HP. Perubahan baru muncul pada kunjungan berikutnya. Naikkan nilai CACHE di public/sw.js bila ingin memaksa cache lama dibuang.
+
+## Aksesibilitas
+Setiap halaman punya satu judul h1, ada tautan "Lewati ke konten", pesan status dan umpan balik jawaban diumumkan lewat live region, dan semua tombol serta kolom input punya nama yang terbaca pembaca layar.

@@ -1,15 +1,114 @@
 import {S, $} from "../core.js";
 import {L, pool} from "../pages/quiz.js";
 import {isIp, ip2n, validMask, maskLen, netOf, sameNet, pad} from "./net.js";
-import {wild} from "../pages/subnet.js";
+import {wild, bin} from "../pages/subnet.js";
 
-const RT={},SW={};let SB=RT;
-function useDevice(d){SB=d==="switch"?SW:RT}
-const CHIPS=["enable","configure terminal","hostname R1","interface g0/0","ip address 192.168.1.1 255.255.255.0","no shutdown","exit","end","show ip interface brief","show ip route","ip route 0.0.0.0 0.0.0.0 192.168.1.254","ping 192.168.1.1","enable secret cisco123","line console 0","password konsol1","login","banner motd #Akses terbatas#","copy running-config startup-config","ip dhcp pool LAN1","network 192.168.1.0 255.255.255.0","default-router 192.168.1.1","ip nat inside","ip nat outside","access-list 10 deny 192.168.1.50","access-list 10 permit any","ip access-group 10 out","access-list 100 deny tcp any any eq 80","access-list 100 permit ip any any","ip access-group 100 in","simulate 192.168.1.10 10.0.0.5 tcp 80","show running-config"];
-const HELP=["Command yang didukung:","  enable, disable, configure terminal, exit, end","  hostname <nama>, interface <g0/0>, ip address <ip> <mask>","  no shutdown, shutdown, ip route <net> <mask> <next-hop>","  show running-config, show ip interface brief, show ip route","  enable secret <pw>, banner motd #pesan#, line console 0, password <pw>, login","  copy running-config startup-config, no ip address","  ip dhcp excluded-address, ip dhcp pool, network, default-router, dns-server","  ip nat inside|outside, ip nat inside source list N interface X overload","  access-list N permit|deny <src>, ip access-group N in|out, show access-lists","  access-list 100 permit|deny <ip|icmp|tcp|udp> <src> <dst> [eq port] (extended)","  simulate <src> <dst> [icmp|tcp|udp] [port]  (uji ACL, khusus simulator)","  ping <ip>, do <show ...>, clear"];
+const RT={},SW={},LX={};let SB=RT;
+function useDevice(d){SB=d==="switch"?SW:d==="linux"?LX:RT}
+const mkdirNode=(m=0o755,w="root")=>({t:"d",m,o:w,g:w,k:{}});
+const mkfileNode=(m=0o644,w="root")=>({t:"f",m,o:w,g:w,k:{}});
+function lxInit(o){
+ const fs=mkdirNode();
+ ["bin","boot","dev","etc","home","opt","root","srv","tmp","usr","var"].forEach(n=>fs.k[n]=mkdirNode());
+ fs.k.root.m=0o700;fs.k.tmp.m=0o777;
+ fs.k.etc.k.network=mkdirNode();fs.k.etc.k.network.k.interfaces=mkfileNode();
+ fs.k.etc.k.apt=mkdirNode();fs.k.etc.k.apt.k["sources.list"]=mkfileNode();
+ Object.assign(o,{dev:"linux",host:"debian",mode:"sh",cwd:"/root",users:["root"],fs,hist:[],hi:0,seen:{},lines:["Simulator shell Debian (root). Ketik help untuk daftar perintah."]});
+}
+const LXHELP=["Perintah yang didukung (Linux):","  pwd, cd, ls [-l], mkdir [-p], touch, cat","  cp [-r], mv, rm [-r|-rf], rmdir","  chmod <755|u+x>, chown <user[:grup]>, useradd [-m], passwd, whoami, clear"];
+const LXCHIPS=["pwd","cd /home","ls -l","mkdir kebun_binatang","cd kebun_binatang","mkdir karnivora herbivora","touch herbivora/kuda","chmod 676 herbivora/kuda","useradd sandikta_jaya","chown sandikta_jaya herbivora","cp -r karnivora /opt","mv karnivora /tmp","rm -r /tmp/karnivora"];
+const lxParts=p=>{const b=p[0]==="/"?[]:LX.cwd.split("/").filter(Boolean);p.split("/").forEach(s=>{if(s==="..")b.pop();else if(s&&s!==".")b.push(s)});return b};
+const lxAt=(o,p)=>p.split("/").filter(Boolean).reduce((n,s)=>n&&n.t==="d"?n.k[s]:null,o.fs);
+const lxNode=parts=>parts.reduce((n,s)=>n&&n.t==="d"?n.k[s]:null,LX.fs);
+const lxModeStr=n=>(n.t==="d"?"d":"-")+[6,3,0].map(s=>["r","w","x"].map((c,i)=>(n.m>>s)&(4>>i)?c:"-").join("")).join("");
+function lxRun(line){
+ const w=line.trim().split(/\s+/).filter(Boolean);if(!w.length)return[];
+ const a=w.slice(1),F=a.filter(x=>/^-[a-zA-Z]+$/.test(x)).join(""),O=a.filter(x=>!/^-[a-zA-Z]+$/.test(x)),fl=c=>F.includes(c);
+ const split=p=>{const q=lxParts(p);return[lxNode(q.slice(0,-1)),q[q.length-1]]};
+ const nf=(cmd,p)=>cmd+": cannot access '"+p+"': No such file or directory";
+ switch(w[0]){
+  case"pwd":return["/"+LX.cwd.split("/").filter(Boolean).join("/")];
+  case"whoami":return["root"];
+  case"help":return LXHELP;
+  case"passwd":return["passwd: password updated successfully (simulasi)"];
+  case"cd":{const q=lxParts(O[0]||"/root"),n=lxNode(q);if(!n)return["bash: cd: "+O[0]+": No such file or directory"];if(n.t!=="d")return["bash: cd: "+O[0]+": Not a directory"];LX.cwd="/"+q.join("/");return[]}
+  case"cat":return O.map(p=>lxNode(lxParts(p))?"":"cat: "+p+": No such file or directory").filter(Boolean);
+  case"ls":{
+   const t=O.length?O:["."],out=[];
+   for(const p of t){
+    const n=lxNode(lxParts(p));
+    if(!n){out.push(nf("ls",p));continue}
+    const items=n.t==="d"?Object.entries(n.k).sort((x,y)=>x[0].localeCompare(y[0])):[[p.split("/").pop(),n]];
+    if(t.length>1)out.push(p+":");
+    if(fl("l"))items.forEach(([k,v])=>out.push(lxModeStr(v)+" "+(v.t==="d"?2:1)+" "+v.o+" "+v.g+" "+String(v.t==="d"?4096:0).padStart(5)+" Jan  1 00:00 "+k));
+    else if(items.length)out.push(items.map(x=>x[0]).join("  "));
+   }
+   return out;
+  }
+  case"mkdir":{
+   if(!O.length)return["mkdir: missing operand"];
+   const out=[];
+   O.forEach(p=>{
+    const q=lxParts(p),bad=m=>{out.push("mkdir: cannot create directory '"+p+"': "+m);return null};
+    let cur=LX.fs;
+    for(let i=0;i<q.length&&cur;i++){
+     const s=q[i],last=i===q.length-1,nx=cur.k[s];
+     if(nx)cur=last&&!fl("p")?bad("File exists"):nx.t==="d"?nx:bad("Not a directory");
+     else cur=last||fl("p")?(cur.k[s]=mkdirNode()):bad("No such file or directory");
+    }
+   });
+   return out;
+  }
+  case"touch":return O.map(p=>{const[par,nm]=split(p);if(!par||par.t!=="d")return"touch: cannot touch '"+p+"': No such file or directory";if(!par.k[nm])par.k[nm]=mkfileNode();return""}).filter(Boolean);
+  case"rm":return O.map(p=>{const[par,nm]=split(p),n=par&&par.k[nm];if(!n)return fl("f")?"":"rm: cannot remove '"+p+"': No such file or directory";if(n.t==="d"&&!fl("r")&&!fl("R"))return"rm: cannot remove '"+p+"': Is a directory";delete par.k[nm];return""}).filter(Boolean);
+  case"rmdir":return O.map(p=>{const[par,nm]=split(p),n=par&&par.k[nm];if(!n)return"rmdir: failed to remove '"+p+"': No such file or directory";if(n.t!=="d")return"rmdir: failed to remove '"+p+"': Not a directory";if(Object.keys(n.k).length)return"rmdir: failed to remove '"+p+"': Directory not empty";delete par.k[nm];return""}).filter(Boolean);
+  case"cp":case"mv":{
+   if(O.length!==2)return[w[0]+": missing file operand"];
+   const[sp,sn]=split(O[0]),src=sp&&sp.k[sn];
+   if(!src)return[w[0]+": cannot stat '"+O[0]+"': No such file or directory"];
+   if(w[0]==="cp"&&src.t==="d"&&!fl("r")&&!fl("R"))return["cp: -r not specified; omitting directory '"+O[0]+"'"];
+   const dn=lxNode(lxParts(O[1]));let tp,tn;
+   if(dn&&dn.t==="d"){tp=dn;tn=sn}else[tp,tn]=split(O[1]);
+   if(!tp||tp.t!=="d")return[w[0]+": cannot create '"+O[1]+"': No such file or directory"];
+   tp.k[tn]=w[0]==="cp"?JSON.parse(JSON.stringify(src)):src;
+   if(w[0]==="mv"&&!(tp===sp&&tn===sn))delete sp.k[sn];
+   return[];
+  }
+  case"chmod":{
+   if(O.length<2)return["chmod: missing operand"];
+   const md=O[0],out=[];
+   O.slice(1).forEach(p=>{
+    const n=lxNode(lxParts(p));
+    if(!n){out.push(nf("chmod",p));return}
+    if(/^[0-7]{3,4}$/.test(md)){n.m=parseInt(md.slice(-3),8);return}
+    const m=md.match(/^([ugoa]*)([+\-=])([rwx]+)$/);
+    if(!m){out.push("chmod: invalid mode: '"+md+"'");return}
+    const who=m[1]===""||m[1].includes("a")?"ugo":m[1],bit={r:4,w:2,x:1};
+    who.split("").forEach(u=>{const s={u:6,g:3,o:0}[u],b=[...m[3]].reduce((x,c)=>x|bit[c],0)<<s;n.m=m[2]==="+"?n.m|b:m[2]==="-"?n.m&~b:(n.m&~(7<<s))|b});
+   });
+   return out;
+  }
+  case"chown":{
+   if(O.length<2)return["chown: missing operand"];
+   const[ow,gr]=O[0].split(":");
+   if(!LX.users.includes(ow))return["chown: invalid user: '"+O[0]+"'"];
+   return O.slice(1).map(p=>{const n=lxNode(lxParts(p));if(!n)return nf("chown",p);n.o=ow;if(gr)n.g=gr;return""}).filter(Boolean);
+  }
+  case"useradd":{
+   if(!O.length)return["Usage: useradd [options] LOGIN"];
+   const u=O[O.length-1];
+   if(LX.users.includes(u))return["useradd: user '"+u+"' already exists"];
+   LX.users.push(u);if(fl("m"))LX.fs.k.home.k[u]=mkdirNode(0o755,u);
+   return[];
+  }
+ }
+ return["bash: "+w[0]+": command not found"];
+}
+const CHIPS=["enable","configure terminal","hostname R1","interface g0/0","ip address 192.168.1.1 255.255.255.0","no shutdown","exit","end","show ip interface brief","show ip route","ip route 0.0.0.0 0.0.0.0 192.168.1.254","ping 192.168.1.1","enable secret cisco123","line console 0","password konsol1","login","banner motd #Akses terbatas#","copy running-config startup-config","ip dhcp pool LAN1","network 192.168.1.0 255.255.255.0","default-router 192.168.1.1","ip nat inside","ip nat outside","access-list 10 deny 192.168.1.50","access-list 10 permit any","ip access-group 10 out","access-list 100 deny tcp any any eq 80","access-list 100 permit ip any any","ip access-group 100 in","simulate 192.168.1.10 10.0.0.5 tcp 80","router rip","version 2","network 192.168.1.0","no auto-summary","router ospf 1","router-id 1.1.1.1","network 192.168.1.0 0.0.0.255 area 0","router eigrp 100","show ip protocols","show running-config"];
+const HELP=["Command yang didukung:","  enable, disable, configure terminal, exit, end","  hostname <nama>, interface <g0/0>, ip address <ip> <mask>","  no shutdown, shutdown, ip route <net> <mask> <next-hop>","  show running-config, show ip interface brief, show ip route","  enable secret <pw>, banner motd #pesan#, line console 0, password <pw>, login","  copy running-config startup-config, no ip address","  ip dhcp excluded-address, ip dhcp pool, network, default-router, dns-server","  ip nat inside|outside, ip nat inside source list N interface X overload","  access-list N permit|deny <src>, ip access-group N in|out, show access-lists","  access-list 100 permit|deny <ip|icmp|tcp|udp> <src> <dst> [eq port] (extended)","  simulate <src> <dst> [icmp|tcp|udp] [port]  (uji ACL, khusus simulator)","  router rip | ospf <n> | eigrp <n>, version 2, network ..., no auto-summary, router-id, show ip protocols","  ping <ip>, do <show ...>, clear"];
 
 const conn=()=>Object.entries(SB.ifs).filter(([,v])=>v.up&&v.ip).map(([name,v])=>({name,ip:v.ip,mask:v.mask}));
-const sbPrompt=()=>SB.host+({user:">",priv:"#",config:"(config)#",if:"(config-if)#",vlan:"(config-vlan)#",line:"(config-line)#",dhcp:"(dhcp-config)#"})[SB.mode];
+const sbPrompt=()=>SB.dev==="linux"?"root@debian:"+(LX.cwd==="/root"?"~":LX.cwd)+"#":SB.host+({user:">",priv:"#",config:"(config)#",if:"(config-if)#",vlan:"(config-vlan)#",line:"(config-line)#",dhcp:"(dhcp-config)#",router:"(config-router)#"})[SB.mode];
 const HELPSW=["Command yang didukung (Switch):","  enable, disable, configure terminal, exit, end, hostname <nama>","  vlan <id>, name <nama>, no vlan <id>","  interface <fa0/1 | g0/1>, shutdown, no shutdown","  switchport mode <access|trunk>, switchport access vlan <id>","  switchport trunk native vlan <id>, switchport trunk allowed vlan <daftar>","  show vlan brief, show interfaces trunk, show running-config","  enable secret <pw>, banner motd #pesan#, copy running-config startup-config","  do <show ...>, clear"];
 const SWCHIPS=["enable","configure terminal","vlan 10","name Sales","vlan 20","interface fa0/1","switchport mode access","switchport access vlan 10","interface g0/1","switchport mode trunk","end","show vlan brief","show interfaces trunk"];
 const short=n=>n.replace("FastEthernet","Fa").replace("GigabitEthernet","Gi");
@@ -18,9 +117,9 @@ function sbInit(o,dev){
  const sw=dev==="switch",ifc=()=>({ip:"",mask:"",up:false,nat:"",acl:{}}),port=()=>({up:true,mode:"access",vlan:1,native:1,allowed:"all"}),ifs={};
  if(sw)["FastEthernet0/1","FastEthernet0/2","FastEthernet0/3","FastEthernet0/4","GigabitEthernet0/1"].forEach(k=>ifs[k]=port());
  else["GigabitEthernet0/0","GigabitEthernet0/1"].forEach(k=>ifs[k]=ifc());
- Object.assign(o,{dev,host:sw?"Switch":"Router",mode:"user",cur:null,curV:null,routes:[],seen:{},hist:[],hi:0,vlans:{1:{name:"default"}},secret:"",banner:"",con:{pw:"",login:false},saved:false,dhcp:{ex:[],pools:{}},curP:null,nat:[],acls:{},ifs,lines:[`Simulator ${sw?"Switch":"Router"}. Ketik ? untuk bantuan.`]});
+ Object.assign(o,{dev,host:sw?"Switch":"Router",mode:"user",cur:null,curV:null,routes:[],seen:{},hist:[],hi:0,vlans:{1:{name:"default"}},secret:"",banner:"",con:{pw:"",login:false},saved:false,dhcp:{ex:[],pools:{}},curP:null,nat:[],acls:{},rp:{on:false,ver:1,nets:[],auto:true},os:{pid:"",rid:"",nets:[],pass:[]},ei:{as:"",nets:[],auto:true},proto:"",ifs,lines:[`Simulator ${sw?"Switch":"Router"}. Ketik ? untuk bantuan.`]});
 }
-function sbReset(){sbInit(SB,SB.dev)}
+function sbReset(){SB.dev==="linux"?lxInit(SB):sbInit(SB,SB.dev)}
 function swVlans(){
  const rows=Object.entries(SB.vlans).sort((a,b)=>a[0]-b[0]).map(([id,v])=>pad(id,5)+pad(v.name,33)+pad("active",10)+Object.entries(SB.ifs).filter(([,p])=>p.mode==="access"&&p.vlan==id).map(([k])=>short(k)).join(", "));
  return[pad("VLAN",5)+pad("Name",33)+pad("Status",10)+"Ports","---- -------------------------------- --------- -------------------------------",...rows];
@@ -69,12 +168,22 @@ function sbSim(w){
  const bl=a&&!a.ok?[a,short(inI.name),"in"]:b&&!b.ok?[b,short(outI.name),"out"]:null;
  return[head,"Masuk : "+short(inI.name)+t(a,"in"),"Keluar: "+short(outI.name)+" ("+via+")"+t(b,"out"),bl?"Hasil : DIBLOKIR oleh ACL "+bl[0].id+" pada "+bl[1]+" ("+bl[2]+"), aturan: "+bl[0].line:"Hasil : DITERUSKAN"];
 }
+const sbProto=()=>{
+ const o=[];
+ if(SB.rp.on)o.push('Routing Protocol is "rip"',"  Default version control: send version "+SB.rp.ver+", receive version "+SB.rp.ver,"  Automatic network summarization is "+(SB.rp.auto?"in effect":"not in effect"),"  Routing for Networks:",...SB.rp.nets.map(x=>"    "+x),"");
+ if(SB.os.pid)o.push('Routing Protocol is "ospf '+SB.os.pid+'"',"  Router ID "+(SB.os.rid||"(otomatis)"),"  Routing for Networks:",...SB.os.nets.map(x=>"    "+x),...(SB.os.pass.length?["  Passive Interface(s):",...SB.os.pass.map(x=>"    "+x)]:[]),"");
+ if(SB.ei.as)o.push('Routing Protocol is "eigrp '+SB.ei.as+'"',"  Automatic network summarization is "+(SB.ei.auto?"in effect":"not in effect"),"  Routing for Networks:",...SB.ei.nets.map(x=>"    "+x),"");
+ return o.length?o:["(Tidak ada protokol routing yang aktif)"];
+};
 const sbAcls=()=>Object.entries(SB.acls).flatMap(([id,r])=>[(id>=100?"Extended":"Standard")+" IP access list "+id,...r.map((x,i)=>"    "+(i+1)*10+" "+x.act+"   "+x.txt)]);
 const svcLines=o=>{
  SB.dhcp.ex.forEach(e=>o.push("ip dhcp excluded-address "+e[0]+(e[1]!==e[0]?" "+e[1]:"")));
  Object.entries(SB.dhcp.pools).forEach(([k,p])=>o.push("ip dhcp pool "+k,p.net?" network "+p.net+" "+p.mask:false,p.gw?" default-router "+p.gw:false,p.dns?" dns-server "+p.dns:false,"!"));
  SB.nat.forEach(r=>o.push("ip nat inside source list "+r.acl+" interface "+r.ifc+" overload"));
  Object.entries(SB.acls).forEach(([id,r])=>r.forEach(x=>o.push("access-list "+id+" "+x.act+" "+x.txt)));
+ if(SB.rp.on)o.push("router rip"," version "+SB.rp.ver,...SB.rp.nets.map(x=>" network "+x),SB.rp.auto?false:" no auto-summary","!");
+ if(SB.os.pid)o.push("router ospf "+SB.os.pid,SB.os.rid?" router-id "+SB.os.rid:false,...SB.os.nets.map(x=>" network "+x),...SB.os.pass.map(x=>" passive-interface "+x),"!");
+ if(SB.ei.as)o.push("router eigrp "+SB.ei.as,...SB.ei.nets.map(x=>" network "+x),SB.ei.auto?false:" no auto-summary","!");
 };
 const secLines=o=>{
  if(SB.secret)o.push("enable secret 5 ********","!");
@@ -108,8 +217,9 @@ function sbPing(t){
  return["Type escape sequence to abort.",`Sending 5, 100-byte ICMP Echos to ${t}, timeout is 2 seconds:`,ok?"!!!!!":"UUUUU",ok?"Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/2 ms":"Success rate is 0 percent (0/5)"];
 }
 function sbRun(line){
+ if(SB.dev==="linux")return lxRun(line);
  const w=line.trim().split(/\s+/).filter(Boolean);if(!w.length)return[];
- const c0=w[0].toLowerCase(),n=w.length,M=SB.mode,cfg=M==="config"||M==="if"||M==="vlan"||M==="line"||M==="dhcp",show=M==="user"||M==="priv";
+ const c0=w[0].toLowerCase(),n=w.length,M=SB.mode,cfg=M==="config"||M==="if"||M==="vlan"||M==="line"||M==="dhcp"||M==="router",show=M==="user"||M==="priv";
  const m=(i,word,min=1)=>!!w[i]&&w[i].length>=min&&word.startsWith(w[i].toLowerCase());
  const bad="% Invalid input detected at '^' marker.";
  if(c0==="?"||c0==="help")return SB.dev==="switch"?HELPSW:HELP;
@@ -118,7 +228,7 @@ function sbRun(line){
  if(m(0,"enable",3)&&M==="user"&&n===1){SB.mode="priv";return[]}
  if(m(0,"disable",3)&&M==="priv"&&n===1){SB.mode="user";return[]}
  if(m(0,"configure",4)&&m(1,"terminal")&&M==="priv"&&n===2){SB.mode="config";return["Enter configuration commands, one per line.  End with CNTL/Z."]}
- if(c0==="exit"&&n===1){if(M==="if"||M==="vlan"||M==="line"||M==="dhcp"){SB.mode="config";SB.cur=null}else if(M==="config")SB.mode="priv";else if(M==="priv")SB.mode="user";return[]}
+ if(c0==="exit"&&n===1){if(M==="if"||M==="vlan"||M==="line"||M==="dhcp"||M==="router"){SB.mode="config";SB.cur=null}else if(M==="config")SB.mode="priv";else if(M==="priv")SB.mode="user";return[]}
  if(m(0,"hostname",4)&&cfg&&n===2){if(!/^[A-Za-z][\w-]{0,62}$/.test(w[1]))return["% Invalid hostname"];SB.host=w[1];SB.mode="config";SB.cur=null;return[]}
  if(m(0,"interface",3)&&cfg&&n>=2){
   const mm=w.slice(1).join("").match(/^(g|gi|gig|gigabit|gigabitethernet|f|fa|fast|fastethernet)(\d+\/\d+)$/i),nm=mm&&(/^g/i.test(mm[1])?"GigabitEthernet":"FastEthernet")+mm[2];
@@ -157,6 +267,25 @@ function sbRun(line){
   if(c0==="login"&&n===1){SB.con.login=true;return[]}
  }
  if(SB.dev==="router"){
+  if(cfg&&c0==="router"&&n>=2){
+   const k=w[1].toLowerCase();
+   if(k==="rip"&&n===2){SB.rp.on=true;SB.proto="rip";SB.mode="router";return[]}
+   if((k==="ospf"||k==="eigrp")&&n===3&&/^\d+$/.test(w[2])){if(k==="ospf")SB.os.pid=w[2];else SB.ei.as=w[2];SB.proto=k;SB.mode="router";return[]}
+   return[bad];
+  }
+  if(M==="router"){
+   const P=SB.proto;
+   if(c0==="version"&&P==="rip"&&n===2&&(w[1]==="1"||w[1]==="2")){SB.rp.ver=+w[1];return[]}
+   if(c0==="no"&&m(1,"auto-summary",3)&&n===2&&P!=="ospf"){(P==="rip"?SB.rp:SB.ei).auto=false;return[]}
+   if(c0==="router-id"&&P==="ospf"&&n===2&&isIp(w[1])){SB.os.rid=w[1];return[]}
+   if(m(0,"passive-interface",3)&&n===2&&P==="ospf"){SB.os.pass.push(w[1]);return[]}
+   if(c0==="network"){
+    if(P==="rip"&&n===2&&isIp(w[1])){SB.rp.nets.push(w[1]);return[]}
+    if(P==="eigrp"&&(n===2||n===3)&&isIp(w[1])&&(n===2||isIp(w[2]))){SB.ei.nets.push(w[1]+(n===3?" "+w[2]:""));return[]}
+    if(P==="ospf"&&n===5&&isIp(w[1])&&isIp(w[2])&&m(3,"area",2)&&/^\d+$/.test(w[4])){SB.os.nets.push(w[1]+" "+w[2]+" area "+w[4]);return[]}
+    return[bad];
+   }
+  }
   if(c0==="simulate"&&show)return sbSim(w);
   if(cfg&&c0==="ip"&&m(1,"dhcp",2)){
    if(m(2,"excluded-address",3)&&(n===4||n===5)&&isIp(w[3])&&(n===4||isIp(w[4]))){SB.dhcp.ex.push([w[3],w[4]||w[3]]);SB.mode="config";return[]}
@@ -208,6 +337,8 @@ function sbRun(line){
   if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"nat",2)&&m(3,"translations",3)&&n===4)return["Pro Inside global      Inside local       Outside local      Outside global"];
   if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"dhcp",2)&&m(3,"binding",3)&&n===4)return["IP address       Client-ID/Hardware address    Lease expiration        Type"];
   if(SB.dev==="router"&&m(1,"access-lists",3)&&n===2)return sbAcls();
+  if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"protocols",3)&&n===3)return sbProto();
+  if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"ospf",2)&&m(3,"neighbor",3)&&n===4)return["Neighbor ID     Pri   State           Dead Time   Address         Interface"];
   if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"interface",3)&&m(3,"brief")&&n===4)return sbBrief();
   if(SB.dev==="router"&&m(1,"ip",2)&&m(2,"route",3)&&n===3)return sbRoutes();
   if(M==="priv"&&m(1,"running-config",3)&&n===2)return sbConfig();
@@ -217,4 +348,4 @@ function sbRun(line){
  return[c0.length>=2&&known.some(k=>k.startsWith(c0))?bad:"Command not supported in simulator."];
 }
 
-export {useDevice, sbInit, sbReset, swVlans, swTrunk, swConfig, aclEval, sbSim, sbBrief, sbRoutes, sbConfig, sbPing, sbRun, RT, SW, SB, CHIPS, HELP, conn, sbPrompt, HELPSW, SWCHIPS, short, PORTS, spec, specTxt, specHit, sbAcls, svcLines, secLines};
+export {useDevice, lxInit, lxRun, sbInit, sbReset, swVlans, swTrunk, swConfig, aclEval, sbSim, sbBrief, sbRoutes, sbConfig, sbPing, sbRun, RT, SW, LX, SB, mkdirNode, mkfileNode, LXHELP, LXCHIPS, lxParts, lxAt, lxNode, lxModeStr, CHIPS, HELP, conn, sbPrompt, HELPSW, SWCHIPS, short, PORTS, spec, specTxt, specHit, sbProto, sbAcls, svcLines, secLines};

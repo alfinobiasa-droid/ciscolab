@@ -187,5 +187,48 @@
    "mail server",
    "proxy Squid"
   ]
+ },
+ {
+  "id": 10,
+  "cat": "Linux",
+  "title": "VirtualBox & Instalasi Debian",
+  "level": "Pemula",
+  "min": 40,
+  "color": "#6d28d9",
+  "devices": [
+   "PC",
+   "Server"
+  ],
+  "topics": [
+   "virtualisasi",
+   "VirtualBox",
+   "mesin virtual",
+   "ISO",
+   "partisi swap",
+   "boot loader",
+   "root"
+  ]
+ },
+ {
+  "id": 11,
+  "cat": "Troubleshooting",
+  "title": "Troubleshooting Layanan Client-Server",
+  "level": "Lanjut",
+  "min": 60,
+  "color": "#be123c",
+  "devices": [
+   "Router",
+   "Server",
+   "PC"
+  ],
+  "topics": [
+   "VLSM",
+   "NAT masquerade",
+   "DHCP server",
+   "DNS",
+   "web server",
+   "bandwidth",
+   "ping"
+  ]
  }
 ]

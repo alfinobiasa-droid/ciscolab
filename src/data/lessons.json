@@ -617,6 +617,108 @@
     "443"
    ],
    0
+  ],
+  [
+   "Praktik di Sandbox Linux",
+   "Latihan dari soal praktik: buat struktur direktori kebun_binatang di /home dengan subdirektori karnivora dan herbivora, atur hak akses dan pemilik, lalu salin atau pindahkan. Gunakan perangkat Linux di Sandbox.",
+   "cd /home\nmkdir kebun_binatang\ncd kebun_binatang\nmkdir karnivora herbivora\ntouch herbivora/kuda\nchmod 676 herbivora/kuda\nuseradd sandikta_jaya\nchown sandikta_jaya herbivora\nls -l",
+   "Pada chmod 676, grup mendapat rwx karena angka tengah 7 = 4+2+1.",
+   "Setelah chmod 676, hak akses pemilik adalah:",
+   [
+    "rw-",
+    "rwx",
+    "r--",
+    "r-x"
+   ],
+   0
+  ]
+ ],
+ "10": [
+  [
+   "Virtualisasi dan VirtualBox",
+   "Virtualisasi memungkinkan beberapa sistem operasi berjalan di satu komputer fisik sebagai mesin virtual. Contoh perangkat lunaknya: VirtualBox, VMware Workstation, QEMU, dan Proxmox. VirtualBox punya menu File, Machine, dan Help. Menu Machine berisi New, Settings, Clone, Start (Normal, Headless, Detachable), dan Remove.",
+   "File > Preferences > Network   (adapter jaringan)\nMachine > New                  (buat VM)\nMachine > Clone                (gandakan VM)\nMachine > Start > Headless     (tanpa jendela)",
+   "Remove punya tiga pilihan: Delete all files, Remove only, atau Cancel.",
+   "Menu VirtualBox untuk menggandakan mesin virtual:",
+   [
+    "Clone",
+    "Move",
+    "Group",
+    "Add"
+   ],
+   0
+  ],
+  [
+   "Membuat mesin virtual",
+   "Saat membuat VM, isi nama, folder, tipe dan versi OS, lalu RAM dan hard disk virtual. File ISO Debian dipasang lewat Settings (Ctrl+S) pada bagian storage CD/DVD. Mesin virtual bisa diekspor dan diimpor sebagai file OVA atau OVF.",
+   "Name   : debian-8\nType   : Linux\nVersion: Debian (32-bit)\nSettings > Storage > CD/DVD > pilih file ISO",
+   "Mode Headless menjalankan VM tanpa jendela, cocok untuk server.",
+   "Format file untuk impor dan ekspor mesin virtual (appliance):",
+   [
+    "OVA atau OVF",
+    "ISO",
+    "VDI",
+    "ZIP"
+   ],
+   0
+  ],
+  [
+   "Instalasi Debian",
+   "Langkah instalasi: pilih bahasa English dan negara Indonesia, isi hostname dan domain, password root, buat user baru, pilih zona waktu, lalu partisi Guided - Use Entire Disk. Partisi swap berfungsi sebagai memori tambahan bila RAM fisik penuh. Pilih standard system, pasang GRUB di hard disk, lalu login sebagai root.",
+   "Hostname : debian-8\nDomain   : sandikta.com\nPartisi  : Guided - Use Entire Disk\n#1 primary  8.2 GB ext3 /\n#5 logical  488 MB swap\nGRUB boot loader -> install ke hard disk",
+   "Superuser (root) bisa mengubah seluruh sistem, sedangkan user biasa dibatasi.",
+   "Fungsi partisi swap:",
+   [
+    "Memori tambahan saat RAM penuh",
+    "Menyimpan sistem operasi",
+    "Menyimpan data pengguna",
+    "Mengatur boot loader"
+   ],
+   0
+  ]
+ ],
+ "11": [
+  [
+   "Perencanaan VLSM",
+   "Skenario: jaringan Server (router + 1 server = 2 host), LAN (router + 50 klien = 51 host), dan WLAN (router + 100 klien = 101 host) dari blok 10.10.1.0/24. Urutkan dari kebutuhan terbesar: WLAN butuh /25, LAN /26, Server /30.",
+   "WLAN   101 host -> 10.10.1.0/25   (126 host)\nLAN     51 host -> 10.10.1.128/26 (62 host)\nServer   2 host -> 10.10.1.192/30 (2 host)",
+   "Mulai dari subnet terbesar agar blok tidak tumpang tindih.",
+   "Prefix paling pas untuk 51 host:",
+   [
+    "/26",
+    "/25",
+    "/27",
+    "/30"
+   ],
+   0
+  ],
+  [
+   "IP, NAT masquerade, dan DHCP",
+   "Router mendapat IP dari ISP (DHCP client), lalu NAT masquerade pada chain srcnat agar klien lokal bisa ke internet. DHCP server dibuat pada interface LAN dan WLAN dengan gateway, rentang alamat, DNS, dan lease time. Pada contoh LAN 10.10.10.128/26, gateway .129 dan pembagian .130 sampai .180.",
+   "IP > Firewall > NAT > chain: srcnat, action: masquerade\nIP > DHCP Server > DHCP Setup\nGateway: 10.10.10.129\nRentang: 10.10.10.130 - 10.10.10.180\nDNS: 8.8.8.8, 8.8.4.4",
+   "Tanpa NAT masquerade, klien tidak bisa ke internet meski IP dan gateway benar.",
+   "Chain NAT masquerade pada router:",
+   [
+    "srcnat",
+    "dstnat",
+    "forward",
+    "input"
+   ],
+   0
+  ],
+  [
+   "Server Debian dan pemeriksaan",
+   "Server Linux perlu IP statis di /etc/network/interfaces, default gateway, dan DNS di /etc/resolv.conf. Cek dengan ping ke router lalu internet. Layanan DNS, web, dan database dipasang setelah koneksi berhasil, dan nslookup menguji DNS.",
+   "iface ens3 inet static\n  address 10.10.10.194/30\n  gateway 10.10.10.193\nnano /etc/resolv.conf\nping 10.10.10.193\napt-get install dnsutils\nnslookup namapeserta.net",
+   "Urutan cek: kabel, IP, gateway, DNS, baru layanan.",
+   "Perintah untuk menguji resolusi DNS:",
+   [
+    "nslookup",
+    "ping -6",
+    "ifconfig",
+    "traceroute -n"
+   ],
+   0
   ]
  ]
 }

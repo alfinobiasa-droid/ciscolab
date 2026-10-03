@@ -32,7 +32,7 @@ function snDraw(){
 function renderSubnet(){
  const inp=(id,label,val,mode)=>`<label class="fld">${label}<input class="inp" id="${id}" inputmode="${mode}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(val)}"></label>`;
  const f={calc:`<div class="frm">${inp("sn-ip","IP Address",SN.ip,"decimal")}${inp("sn-cidr","CIDR",SN.cidr,"numeric")}</div>`,c2m:inp("sn-cidr","CIDR (contoh 24)",SN.cidr,"numeric"),m2c:inp("sn-mask","Subnet Mask",SN.mask,"decimal")};
- $("#view").innerHTML=`<h2 style="margin:4px 0 6px">Subnet Calculator</h2><p style="color:var(--mute);margin:0 0 12px">Hitung network, broadcast, dan host range, atau konversi CIDR dan subnet mask.</p>
+ $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Subnet Calculator</h1><p style="color:var(--mute);margin:0 0 12px">Hitung network, broadcast, dan host range, atau konversi CIDR dan subnet mask.</p>
  <div class="seg" style="margin-bottom:12px">${SNMODES.map(m=>`<button class="chip" data-sn="${m[0]}" aria-pressed="${SN.mode===m[0]}">${m[1]}</button>`).join("")}</div>
  <div class="qcard">${f[SN.mode]}<div id="snout" style="margin-top:14px"></div></div>`;
  snDraw();

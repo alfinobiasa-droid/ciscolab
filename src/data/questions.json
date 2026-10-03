@@ -1180,7 +1180,7 @@
    "Connected"
   ],
   "answer": 0,
-  "explanation": "O = OSPF.",
+  "explanation": "Kode O berarti route dipelajari lewat OSPF. Kode R untuk RIP, S untuk static, dan C untuk connected.",
   "xp": 10
  },
  {
@@ -2957,6 +2957,390 @@
   ],
   "answer": 0,
   "explanation": "Voice VLAN memisahkan lalu lintas suara dari data.",
+  "xp": 10
+ },
+ {
+  "id": 186,
+  "category": "Linux",
+  "difficulty": "Mudah",
+  "question": "Aplikasi virtualisasi yang dikembangkan Oracle:",
+  "code": "",
+  "options": [
+   "VirtualBox",
+   "VMware Workstation",
+   "QEMU",
+   "Proxmox"
+  ],
+  "answer": 0,
+  "explanation": "Oracle VM VirtualBox dikembangkan dan dikelola oleh Oracle.",
+  "xp": 10
+ },
+ {
+  "id": 187,
+  "category": "Linux",
+  "difficulty": "Sedang",
+  "question": "Mode menjalankan mesin virtual tanpa jendela tampilan:",
+  "code": "",
+  "options": [
+   "Headless Start",
+   "Normal Start",
+   "Detachable Start",
+   "Reset"
+  ],
+  "answer": 0,
+  "explanation": "Headless Start cocok untuk server yang diakses lewat jaringan.",
+  "xp": 10
+ },
+ {
+  "id": 188,
+  "category": "Linux",
+  "difficulty": "Sedang",
+  "question": "Opsi Remove yang menghapus VM tetapi tidak menghapus file-nya:",
+  "code": "",
+  "options": [
+   "Remove only",
+   "Delete all files",
+   "Cancel",
+   "Move"
+  ],
+  "answer": 0,
+  "explanation": "Delete all files menghapus juga hard disk virtual dan file log.",
+  "xp": 10
+ },
+ {
+  "id": 189,
+  "category": "Linux",
+  "difficulty": "Mudah",
+  "question": "Pengguna Linux dengan hak akses penuh disebut:",
+  "code": "",
+  "options": [
+   "Root (superuser)",
+   "Guest",
+   "Operator",
+   "Visitor"
+  ],
+  "answer": 0,
+  "explanation": "User biasa dibatasi hak aksesnya.",
+  "xp": 10
+ },
+ {
+  "id": 190,
+  "category": "Linux",
+  "difficulty": "Sedang",
+  "question": "Fungsi boot loader (GRUB):",
+  "code": "",
+  "options": [
+   "Memuat sistem operasi saat komputer menyala",
+   "Mengatur IP address",
+   "Menghapus partisi",
+   "Menyimpan password"
+  ],
+  "answer": 0,
+  "explanation": "Tanpa boot loader sistem operasi tidak bisa dimulai.",
+  "xp": 10
+ },
+ {
+  "id": 191,
+  "category": "Linux",
+  "difficulty": "Mudah",
+  "question": "Metode partisi otomatis pada instalasi Debian:",
+  "code": "",
+  "options": [
+   "Guided - Use Entire Disk",
+   "Manual",
+   "Encrypted LVM",
+   "Raid"
+  ],
+  "answer": 0,
+  "explanation": "Guided memakai seluruh disk dan membuat partisi root dan swap otomatis.",
+  "xp": 10
+ },
+ {
+  "id": 192,
+  "category": "Troubleshooting",
+  "difficulty": "Sedang",
+  "question": "Prefix yang paling pas untuk 101 host:",
+  "code": "",
+  "options": [
+   "/25",
+   "/26",
+   "/24",
+   "/27"
+  ],
+  "answer": 0,
+  "explanation": "/25 menyediakan 126 host usable, sedangkan /26 hanya 62.",
+  "xp": 10
+ },
+ {
+  "id": 193,
+  "category": "Troubleshooting",
+  "difficulty": "Sedang",
+  "question": "Subnet 10.10.1.192/30 pada skenario VLSM dipakai untuk:",
+  "code": "",
+  "options": [
+   "Jaringan server (2 host)",
+   "WLAN",
+   "LAN",
+   "Management"
+  ],
+  "answer": 0,
+  "explanation": "/30 hanya punya 2 host: router dan satu server.",
+  "xp": 10
+ },
+ {
+  "id": 194,
+  "category": "Troubleshooting",
+  "difficulty": "Sedang",
+  "question": "Klien LAN tidak bisa ke internet padahal IP dan gateway benar. Cek:",
+  "code": "",
+  "options": [
+   "NAT masquerade pada router",
+   "Warna kabel",
+   "Hostname server",
+   "Banner MOTD"
+  ],
+  "answer": 0,
+  "explanation": "Tanpa NAT, alamat private tidak bisa dirutekan ke internet.",
+  "xp": 10
+ },
+ {
+  "id": 195,
+  "category": "Troubleshooting",
+  "difficulty": "Sedang",
+  "question": "Klien tidak mendapat IP otomatis. Cek pertama:",
+  "code": "",
+  "options": [
+   "DHCP server aktif pada interface yang benar",
+   "DNS server",
+   "Web server",
+   "Port trunk"
+  ],
+  "answer": 0,
+  "explanation": "DHCP server harus dibuat pada interface yang terhubung ke klien.",
+  "xp": 10
+ },
+ {
+  "id": 196,
+  "category": "Troubleshooting",
+  "difficulty": "Sulit",
+  "question": "Server Debian bisa ping router tetapi tidak bisa membuka nama domain. Cek:",
+  "code": "",
+  "options": [
+   "/etc/resolv.conf (DNS)",
+   "/etc/hosts saja",
+   "Port switch",
+   "Cost OSPF"
+  ],
+  "answer": 0,
+  "explanation": "Ping berhasil berarti IP dan gateway baik. Masalahnya ada di resolusi nama.",
+  "xp": 10
+ },
+ {
+  "id": 197,
+  "category": "Troubleshooting",
+  "difficulty": "Mudah",
+  "question": "Perintah untuk menguji DNS:",
+  "code": "",
+  "options": [
+   "nslookup",
+   "ifconfig",
+   "chmod",
+   "mkdir"
+  ],
+  "answer": 0,
+  "explanation": "Contoh: nslookup namapeserta.net.",
+  "xp": 10
+ },
+ {
+  "id": 198,
+  "category": "Troubleshooting",
+  "difficulty": "Mudah",
+  "question": "Pada MikroTik, NAT masquerade dibuat di menu:",
+  "code": "",
+  "options": [
+   "IP > Firewall > NAT",
+   "IP > DHCP Server",
+   "System > Reset",
+   "Queues"
+  ],
+  "answer": 0,
+  "explanation": "Chain srcnat dengan action masquerade.",
+  "xp": 10
+ },
+ {
+  "id": 199,
+  "category": "Troubleshooting",
+  "difficulty": "Sedang",
+  "question": "Tujuan membatasi bandwidth per klien (256 kbps kabel, 128 kbps wireless):",
+  "code": "",
+  "options": [
+   "Pembagian kecepatan yang merata",
+   "Menambah jumlah host",
+   "Mengamankan password",
+   "Menghapus NAT"
+  ],
+  "answer": 0,
+  "explanation": "Bandwidth limiter mencegah satu klien memakai seluruh kapasitas.",
+  "xp": 10
+ },
+ {
+  "id": 200,
+  "category": "Keamanan",
+  "difficulty": "Mudah",
+  "question": "Teknik mengacak data agar hanya pihak yang berhak dapat membacanya:",
+  "code": "",
+  "options": [
+   "Enkripsi",
+   "Fragmentasi",
+   "Kompresi",
+   "Routing"
+  ],
+  "answer": 0,
+  "explanation": "Enkripsi menjaga confidentiality, bahkan bila data disadap.",
+  "xp": 10
+ },
+ {
+  "id": 201,
+  "category": "Keamanan",
+  "difficulty": "Sedang",
+  "question": "Perbedaan autentikasi dan otorisasi:",
+  "code": "",
+  "options": [
+   "Autentikasi membuktikan identitas, otorisasi menentukan hak akses",
+   "Keduanya sama",
+   "Otorisasi membuktikan identitas",
+   "Autentikasi menentukan bandwidth"
+  ],
+  "answer": 0,
+  "explanation": "Login membuktikan siapa Anda, hak akses menentukan apa yang boleh Anda lakukan.",
+  "xp": 10
+ },
+ {
+  "id": 202,
+  "category": "Keamanan",
+  "difficulty": "Mudah",
+  "question": "Perangkat atau perangkat lunak yang menyaring lalu lintas berdasarkan aturan:",
+  "code": "",
+  "options": [
+   "Firewall",
+   "Repeater",
+   "Hub",
+   "Modem"
+  ],
+  "answer": 0,
+  "explanation": "ACL pada router adalah salah satu bentuk penyaringan sederhana.",
+  "xp": 10
+ },
+ {
+  "id": 203,
+  "category": "Keamanan",
+  "difficulty": "Sedang",
+  "question": "Fungsi hash seperti SHA-256 dalam keamanan dipakai untuk:",
+  "code": "",
+  "options": [
+   "Memeriksa integritas data",
+   "Mengenkripsi data dua arah",
+   "Membuat VLAN",
+   "Memberi alamat IP"
+  ],
+  "answer": 0,
+  "explanation": "Perubahan satu bit saja menghasilkan hash yang berbeda.",
+  "xp": 10
+ },
+ {
+  "id": 204,
+  "category": "Keamanan",
+  "difficulty": "Mudah",
+  "question": "Email palsu yang menipu pengguna agar memberikan password disebut:",
+  "code": "",
+  "options": [
+   "Phishing",
+   "Sniffing",
+   "Spoofing",
+   "Routing"
+  ],
+  "answer": 0,
+  "explanation": "Phishing memanfaatkan manipulasi pengguna, bukan celah teknis.",
+  "xp": 10
+ },
+ {
+  "id": 205,
+  "category": "Keamanan",
+  "difficulty": "Sedang",
+  "question": "Malware yang menyebar sendiri lewat jaringan tanpa program inang:",
+  "code": "",
+  "options": [
+   "Worm",
+   "Trojan",
+   "Spyware",
+   "Adware"
+  ],
+  "answer": 0,
+  "explanation": "Virus butuh program inang, sedangkan worm menyebar mandiri.",
+  "xp": 10
+ },
+ {
+  "id": 206,
+  "category": "Keamanan",
+  "difficulty": "Sedang",
+  "question": "Malware yang mengenkripsi file lalu meminta tebusan:",
+  "code": "",
+  "options": [
+   "Ransomware",
+   "Worm",
+   "Rootkit",
+   "Keylogger"
+  ],
+  "answer": 0,
+  "explanation": "Pencegahan terbaik adalah backup rutin yang terpisah dari jaringan.",
+  "xp": 10
+ },
+ {
+  "id": 207,
+  "category": "Keamanan",
+  "difficulty": "Sedang",
+  "question": "Backup data terutama mendukung aspek keamanan:",
+  "code": "",
+  "options": [
+   "Availability",
+   "Confidentiality",
+   "Authentication",
+   "Non-repudiation"
+  ],
+  "answer": 0,
+  "explanation": "Dengan backup, layanan dan data bisa dipulihkan setelah kerusakan.",
+  "xp": 10
+ },
+ {
+  "id": 208,
+  "category": "Keamanan",
+  "difficulty": "Sedang",
+  "question": "VPN dipakai untuk:",
+  "code": "",
+  "options": [
+   "Membuat jalur terenkripsi melintasi jaringan publik",
+   "Membagi jaringan menjadi VLAN",
+   "Memberi IP otomatis",
+   "Menerjemahkan nama domain"
+  ],
+  "answer": 0,
+  "explanation": "VPN menjaga confidentiality saat data melewati internet.",
+  "xp": 10
+ },
+ {
+  "id": 209,
+  "category": "Keamanan",
+  "difficulty": "Sulit",
+  "question": "Mengapa Telnet kalah aman dibanding SSH:",
+  "code": "",
+  "options": [
+   "Telnet mengirim data, termasuk password, sebagai teks polos",
+   "Telnet lebih lambat",
+   "Telnet butuh VLAN khusus",
+   "Telnet memakai port 22"
+  ],
+  "answer": 0,
+  "explanation": "Siapa pun yang menyadap jaringan bisa membaca sesi Telnet.",
   "xp": 10
  }
 ]

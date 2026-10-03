@@ -40,12 +40,12 @@ const TK=store.get("trouble",{done:{}});
 function renderTrouble(){
  const v=$("#view"),d=Object.keys(TK.done).length;
  if(T.cur==null){
-  v.innerHTML=`<h2 style="margin:4px 0 6px">Trouble</h2><p style="color:var(--mute);margin:0 0 14px">Baca topologi dan output, lalu tentukan penyebabnya. ${d} dari ${TS.length} kasus selesai.</p>
+  v.innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Trouble</h1><p style="color:var(--mute);margin:0 0 14px">Baca topologi dan output, lalu tentukan penyebabnya. ${d} dari ${TS.length} kasus selesai.</p>
   <div class="grid">${TS.map(t=>{const ok=TK.done[t.id];return `<article class="mod" style="--c:${ok?"#1a9b5c":"var(--orange)"}"><div><div class="n">Kasus ${t.id}</div><h3>${t.title}</h3></div><div class="meta"><span class="tag">${ok?"Selesai ✓":"Belum selesai"}</span><span class="tag o">+10 XP</span></div><button class="go" data-tb="open" data-v="${t.id}">${ok?"Ulangi Kasus":"Buka Kasus"}</button></article>`}).join("")}</div>`;
   return;
  }
  const t=TS.find(x=>x.id===T.cur),fin=T.sel!=null,ok=fin&&T.sel===t.ans;
- const fb=fin?`<div class="fb ${ok?"ok":"no"}"><b>${ok?"✓ Benar! "+(T.gain?"+10 XP":"XP kasus ini sudah didapat."):"✗ Bukan "+CAUSES[T.sel][0]+"."}</b>
+ const fb=fin?`<div role="status" class="fb ${ok?"ok":"no"}"><b>${ok?"✓ Benar! "+(T.gain?"+10 XP":"XP kasus ini sudah didapat."):"✗ Bukan "+CAUSES[T.sel][0]+"."}</b>
   ${ok?"":`<p>Cara memeriksa ${CAUSES[T.sel][0]}: ${CAUSES[T.sel][1]}</p><p>Penyebab sebenarnya: <b>${CAUSES[t.ans][0]}</b>.</p>`}<p>${esc(t.exp)}</p></div>
   <button class="act" data-tb="next">${TS.some(x=>x.id>t.id)?"Kasus Berikutnya":"Selesai"}</button>`:"";
  v.innerHTML=`<button class="chip" data-tb="list" style="margin-bottom:10px">← Semua kasus</button>

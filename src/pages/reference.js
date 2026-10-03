@@ -16,7 +16,7 @@ function cheatDraw(){
  $("#chlist").innerHTML=`<div class="count">${r.length} command</div>`+(r.length?`<div class="cgrid">${r.map(c=>`<div class="cc"><div style="min-width:0"><code class="cm">${esc(c[1])}</code><div class="cd">${esc(c[2])}</div></div><button class="cpy" data-cp="${esc(c[1])}" aria-label="Salin ${esc(c[1])}">Salin</button></div>`).join("")}</div>`:emptyBox);
 }
 function renderCheat(){
- $("#view").innerHTML=`<h2 style="margin:4px 0 6px">Cheat Sheet</h2><p style="color:var(--mute);margin:0 0 12px">Command Cisco IOS yang sering dipakai. Ketuk Salin untuk menyalin.</p>
+ $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Cheat Sheet</h1><p style="color:var(--mute);margin:0 0 12px">Command Cisco IOS yang sering dipakai. Ketuk Salin untuk menyalin.</p>
  ${searchBox("ch-q","Cari command atau fungsi...",CH.q)}
  <div class="chips">${["Semua","Basic IOS","Switch","VLAN","Routing","OSPF","Layanan","Linux","Troubleshooting"].map(c=>`<button class="chip" data-ch="${c}" aria-pressed="${c===CH.cat}">${c}</button>`).join("")}</div><div id="chlist"></div>`;
  cheatDraw();
@@ -26,7 +26,7 @@ function kamusDraw(){
  $("#kglist").innerHTML=`<div class="count">${r.length} istilah</div>`+(r.length?`<div class="grid">${r.map(g=>`<article class="mod" style="--c:var(--cyan)"><h3>${esc(g[0])}</h3><p style="margin:0">${esc(g[1])}</p><small style="color:var(--mute)">Contoh: ${esc(g[2])}</small>${g[3]?`<button class="cpy" data-cp="${esc(g[3])}" style="text-align:left;font:600 .82rem ui-monospace,Menlo,Consolas,monospace;padding:8px 12px;height:auto;word-break:break-word" aria-label="Salin ${esc(g[3])}">${esc(g[3])}</button>`:""}</article>`).join("")}</div>`:emptyBox);
 }
 function renderKamus(){
- $("#view").innerHTML=`<h2 style="margin:4px 0 6px">Kamus</h2><p style="color:var(--mute);margin:0 0 12px">Istilah jaringan beserta contoh dan command terkait.</p>
+ $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Kamus</h1><p style="color:var(--mute);margin:0 0 12px">Istilah jaringan beserta contoh dan command terkait.</p>
  ${searchBox("kg-q","Cari istilah: VLAN, OSPF, NAT...",KG.q)}<div id="kglist"></div>`;
  kamusDraw();
 }

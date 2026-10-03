@@ -1,7 +1,7 @@
 import QUESTS from "../data/quests.json";
 import {toast, store, S, $} from "../core.js";
 import {go} from "../main.js";
-import {RT, SW} from "../sim/engine.js";
+import {RT, SW, LX, lxAt} from "../sim/engine.js";
 import {sameNet} from "../sim/net.js";
 
 const QK=store.get("quests",{done:{}});
@@ -26,9 +26,22 @@ const RULES={
  nat_acl:o=>o.nat.some(r=>o.acls[r.acl]),
  acl_deny:o=>Object.values(o.acls).some(r=>r.some(x=>x.act==="deny")&&r.some(x=>x.act==="permit"&&x.txt==="any")),
  acl_applied:o=>Object.values(o.ifs).some(i=>Object.keys(i.acl||{}).length>0),
- acl_ext_web:o=>Object.values(o.acls).some(r=>r.some(x=>x.act==="deny"&&x.proto==="tcp"&&x.port===80)&&r.some(x=>x.act==="permit"&&x.proto==="ip"))
+ acl_ext_web:o=>Object.values(o.acls).some(r=>r.some(x=>x.act==="deny"&&x.proto==="tcp"&&x.port===80)&&r.some(x=>x.act==="permit"&&x.proto==="ip")),
+ rip_v2:o=>o.rp.on&&o.rp.ver===2,
+ rip_net:o=>o.rp.nets.length>0,
+ rip_noauto:o=>o.rp.on&&!o.rp.auto,
+ ospf_on:o=>!!o.os.pid,
+ ospf_rid:o=>!!o.os.rid,
+ ospf_net:o=>o.os.nets.some(x=>/ area 0$/.test(x)),
+ eigrp_on:o=>!!o.ei.as,
+ eigrp_net:o=>o.ei.nets.length>0,
+ eigrp_noauto:o=>!!o.ei.as&&!o.ei.auto,
+ path:(o,r)=>{const n=lxAt(o,r.path);return!!n&&n.t===r.type},
+ mode:(o,r)=>{const n=lxAt(o,r.path);return!!n&&(n.m&0o777)===parseInt(r.value,8)},
+ owner:(o,r)=>{const n=lxAt(o,r.path);return!!n&&n.o===r.value},
+ user:(o,r)=>o.users.includes(r.value)
 };
-const check=r=>RULES[r.test](r.dev==="switch"?SW:RT,r);
+const check=r=>RULES[r.test](r.dev==="linux"?LX:r.dev==="switch"?SW:RT,r);
 
 function questCard(q){
  const st=q.obj.map(o=>check(o.rule)),done=!!QK.done[q.id],n=done?q.obj.length:st.filter(Boolean).length;
@@ -42,7 +55,7 @@ function questCard(q){
 }
 function renderQuest(){
  const d=Object.keys(QK.done).length;
- $("#view").innerHTML=`<h2 style="margin:4px 0 6px">Quest</h2><p style="color:var(--mute);margin:0 0 14px">Kerjakan konfigurasi di Sandbox, lalu kembali ke sini untuk klaim hadiah. ${d} dari ${QUESTS.length} quest selesai.</p>
+ $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Quest</h1><p style="color:var(--mute);margin:0 0 14px">Kerjakan konfigurasi di Sandbox, lalu kembali ke sini untuk klaim hadiah. ${d} dari ${QUESTS.length} quest selesai.</p>
  <div class="grid">${QUESTS.map(questCard).join("")}</div>`;
 }
 document.addEventListener("click",e=>{

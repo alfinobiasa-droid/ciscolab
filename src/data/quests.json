@@ -304,5 +304,148 @@
     }
    }
   ]
+ },
+ {
+  "id": 11,
+  "title": "Konfigurasi RIP versi 2",
+  "desc": "Aktifkan RIP v2 dan umumkan jaringan, lalu matikan ringkasan otomatis.",
+  "hint": "router rip → version 2 → network 192.168.1.0 → no auto-summary → end → show ip protocols",
+  "xp": 100,
+  "obj": [
+   {
+    "t": "RIP versi 2 aktif",
+    "rule": {
+     "test": "rip_v2"
+    }
+   },
+   {
+    "t": "Ada network yang diumumkan",
+    "rule": {
+     "test": "rip_net"
+    }
+   },
+   {
+    "t": "Auto-summary dimatikan",
+    "rule": {
+     "test": "rip_noauto"
+    }
+   }
+  ]
+ },
+ {
+  "id": 12,
+  "title": "Konfigurasi OSPF Area 0",
+  "desc": "Buat proses OSPF dengan router ID dan umumkan jaringan di area 0.",
+  "hint": "router ospf 1 → router-id 1.1.1.1 → network 192.168.1.0 0.0.0.255 area 0",
+  "xp": 100,
+  "obj": [
+   {
+    "t": "Proses OSPF dibuat",
+    "rule": {
+     "test": "ospf_on"
+    }
+   },
+   {
+    "t": "Router ID diatur",
+    "rule": {
+     "test": "ospf_rid"
+    }
+   },
+   {
+    "t": "Network diumumkan di area 0",
+    "rule": {
+     "test": "ospf_net"
+    }
+   }
+  ]
+ },
+ {
+  "id": 13,
+  "title": "Konfigurasi EIGRP",
+  "desc": "Buat proses EIGRP dengan nomor AS, umumkan jaringan, dan matikan auto-summary.",
+  "hint": "router eigrp 100 → network 192.168.1.0 → no auto-summary",
+  "xp": 100,
+  "obj": [
+   {
+    "t": "Proses EIGRP dengan nomor AS dibuat",
+    "rule": {
+     "test": "eigrp_on"
+    }
+   },
+   {
+    "t": "Ada network yang diumumkan",
+    "rule": {
+     "test": "eigrp_net"
+    }
+   },
+   {
+    "t": "Auto-summary dimatikan",
+    "rule": {
+     "test": "eigrp_noauto"
+    }
+   }
+  ]
+ },
+ {
+  "id": 14,
+  "title": "Struktur Kebun Binatang (Linux)",
+  "desc": "Di Sandbox pilih Linux, buat struktur direktori dan atur hak akses serta pemilik.",
+  "hint": "cd /home → mkdir kebun_binatang → cd kebun_binatang → mkdir karnivora herbivora → touch herbivora/kuda → chmod 676 herbivora/kuda → useradd sandikta_jaya → chown sandikta_jaya herbivora",
+  "xp": 100,
+  "obj": [
+   {
+    "t": "Direktori karnivora ada",
+    "rule": {
+     "dev": "linux",
+     "test": "path",
+     "path": "/home/kebun_binatang/karnivora",
+     "type": "d"
+    }
+   },
+   {
+    "t": "Direktori herbivora ada",
+    "rule": {
+     "dev": "linux",
+     "test": "path",
+     "path": "/home/kebun_binatang/herbivora",
+     "type": "d"
+    }
+   },
+   {
+    "t": "File kuda ada di herbivora",
+    "rule": {
+     "dev": "linux",
+     "test": "path",
+     "path": "/home/kebun_binatang/herbivora/kuda",
+     "type": "f"
+    }
+   },
+   {
+    "t": "Hak akses kuda adalah 676",
+    "rule": {
+     "dev": "linux",
+     "test": "mode",
+     "path": "/home/kebun_binatang/herbivora/kuda",
+     "value": "676"
+    }
+   },
+   {
+    "t": "User sandikta_jaya dibuat",
+    "rule": {
+     "dev": "linux",
+     "test": "user",
+     "value": "sandikta_jaya"
+    }
+   },
+   {
+    "t": "Pemilik herbivora adalah sandikta_jaya",
+    "rule": {
+     "dev": "linux",
+     "test": "owner",
+     "path": "/home/kebun_binatang/herbivora",
+     "value": "sandikta_jaya"
+    }
+   }
+  ]
  }
 ]
