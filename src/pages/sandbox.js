@@ -1,6 +1,8 @@
-import {store, $, esc} from "../core.js";
+import {toast, store, $, esc} from "../core.js";
 import {pool} from "./quiz.js";
 import {useDevice, lxInit, sbInit, sbReset, sbRun, RT, SW, LX, SB, LXHELP, LXCHIPS, CHIPS, HELP, sbPrompt, HELPSW, SWCHIPS} from "../sim/engine.js";
+import {has} from "./reference.js";
+import {devStatus, liveTopo, topoLegend} from "./netview.js";
 
 const CMDLIST={
  "r:user":"enable|ping |traceroute |show ip interface brief|show ip route|show interfaces|show ip protocols|simulate ",
@@ -26,12 +28,26 @@ function sbDraw(){
  $("#tout").innerHTML=SB.lines.map(l=>`<div class="tl">${esc(l)||"&nbsp;"}</div>`).join("");
  $("#tp").textContent=sbPrompt();
  const t=$("#term");t.scrollTop=t.scrollHeight;
+ const sbs=$("#sbstat");if(sbs)sbs.innerHTML=sbStatus();
+ const dk=SB.dev==="switch"?"sw":SB.dev==="linux"?"srv":"rt",db=$("#devbadge");if(db)db.innerHTML=(SB.dev==="linux"?"debian":SB.host)+" · "+(SB.dev==="linux"?"ONLINE":{ok:"ONLINE",warn:"WARNING",off:"IDLE"}[devStatus(SB,dk)]);
+ const tp=$("#sbtopo");if(tp)tp.innerHTML=liveTopo(dk);
+}
+function sbStatus(){
+ const f=Object.values(SB.ifs||{}),up=f.filter(i=>i.up).length,k=SB.dev==="switch"?"sw":"rt";
+ if(SB.dev==="linux")return `<span class="ok">● Shell ready</span><span>Commands ${SB.hist.length}</span><span>Users ${SB.users.length}</span>`;
+ const st=devStatus(SB,k),lab={ok:"Network Healthy",warn:"Check interfaces",off:"Not configured"}[st];
+ return `<span class="${st==="ok"?"ok":st==="warn"?"warn":""}">● ${lab}</span><span>Commands ${SB.hist.length}</span><span>Interfaces up ${up}/${f.length}</span><span>${SB.dev==="switch"?"VLANs "+Object.keys(SB.vlans).length:"Routes "+SB.routes.length}</span>`;
 }
 function renderSandbox(){
- $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Sandbox CLI</h1><div class="seg" style="margin-bottom:10px"><button class="chip" data-sbact="dev-router" aria-pressed="${SB.dev==="router"}">Router</button><button class="chip" data-sbact="dev-switch" aria-pressed="${SB.dev==="switch"}">Switch</button><button class="chip" data-sbact="dev-linux" aria-pressed="${SB.dev==="linux"}">Linux</button></div>
- <p style="color:var(--mute);margin:0 0 12px">Simulator sederhana, bukan Cisco IOS asli. Ketuk command untuk mengisinya ke terminal, lalu tekan Enter. Ping dianggap berhasil bila tujuan ada di jaringan yang terhubung atau punya static route valid.</p>
- <div class="term" id="term"><div id="tout"></div><label class="tin"><span id="tp"></span><input id="tcmd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-label="Command Cisco"></label></div>
- <div class="seg">${(SB.dev==="linux"?LXCHIPS:SB.dev==="switch"?SWCHIPS:CHIPS).map(c=>`<button class="chip" data-sb="${esc(c)}">${esc(c)}</button>`).join("")}<button class="chip" data-sbact="help">? Bantuan</button><button class="chip" data-sbact="reset">↺ Reset</button></div>`;
+ const k=SB.dev==="switch"?"sw":SB.dev==="linux"?"srv":"rt";
+ $("#view").innerHTML=`<div class="sb-head"><div><p class="crumb2">NETLAB / SANDBOX</p><h1 class="pg" style="margin:2px 0 0">Sandbox</h1></div><div class="devbadge" id="devbadge"></div></div>
+ <div class="seg" style="margin:12px 0">${["router","switch","linux"].map(d=>`<button class="chip" data-sbact="dev-${d}" aria-pressed="${SB.dev===d}">${{router:"Router",switch:"Switch",linux:"Linux"}[d]}</button>`).join("")}</div>
+ <div class="sbx"><section class="pan"><p class="lbl">Network Topology</p><div id="sbtopo">${liveTopo(k)}</div>${topoLegend()}</section>
+ <section class="pan"><div class="lbl-row"><p class="lbl">${SB.dev==="linux"?"Linux Terminal":"Cisco CLI"}</p><div class="tools"><button class="chip s" data-sbact="clear">Clear</button><button class="chip s" data-sbact="copy">Copy</button><button class="chip s" data-sbact="reset">Reset</button></div></div>
+ <div class="term" id="term"><div id="tout"></div><label class="tin"><span id="tp"></span><input id="tcmd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-label="Command"></label></div>
+ <div class="seg" style="margin-top:10px">${(SB.dev==="linux"?LXCHIPS:SB.dev==="switch"?SWCHIPS:CHIPS).map(c=>`<button class="chip" data-sb="${esc(c)}">${esc(c)}</button>`).join("")}<button class="chip" data-sbact="help">? Help</button></div>
+ <p class="hint muted">Tab: autocomplete · ↑ ↓: history · Ping succeeds when the target is on a connected network or has a valid route.</p></section></div>
+ <div class="statusbar" id="sbstat"></div>`;
  sbDraw();
 }
 document.addEventListener("keydown",e=>{
@@ -50,6 +66,8 @@ document.addEventListener("click",e=>{
  const t=e.target.closest("[data-sb],[data-sbact]");
  if(t){
   if(t.dataset.sbact==="reset"){sbReset();sbSave();return renderSandbox()}
+  if(t.dataset.sbact==="clear"){SB.lines=[];return sbDraw()}
+  if(t.dataset.sbact==="copy"){try{navigator.clipboard.writeText(SB.lines.join("\n")).then(()=>toast("Terminal copied"),()=>toast("Copy failed"))}catch(x){toast("Copy failed")}return}
   if(t.dataset.sbact==="help"){SB.lines.push(sbPrompt()+" ?",...(SB.dev==="linux"?LXHELP:SB.dev==="switch"?HELPSW:HELP));return sbDraw()}
   if(t.dataset.sbact.slice(0,4)==="dev-"){useDevice(t.dataset.sbact.slice(4));sbSave();return renderSandbox()}
   const i=$("#tcmd");i.value=t.dataset.sb;i.focus();return;
@@ -63,4 +81,4 @@ sbInit(RT,"router");sbInit(SW,"switch");lxInit(LX);
  if(old)Object.assign(RT,old);
  if(sv){Object.assign(RT,sv.rt);Object.assign(SW,sv.sw);if(sv.lx)Object.assign(LX,sv.lx);useDevice(sv.dev)}}
 
-export {sbComplete, sbDraw, renderSandbox, CMDLIST, pk, sbSave};
+export {sbComplete, sbDraw, sbStatus, renderSandbox, CMDLIST, pk, sbSave};

@@ -24,25 +24,28 @@ const hl=(t,q)=>{t=esc(t);if(!q)return t;const r=new RegExp("("+q.replace(/[.*+?
 
 function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
 const DQ=[
- {id:"ip",t:"Konfigurasi IP address di Sandbox",xp:20,ev:"ip",n:1},
- {id:"vlan",t:"Buat VLAN di switch (Sandbox)",xp:30,ev:"vlan",n:1},
- {id:"trouble",t:"Selesaikan satu kasus troubleshooting",xp:40,ev:"trouble",n:1},
- {id:"quiz",t:"Jawab 5 soal kuis dengan benar",xp:30,ev:"quiz_ok",n:5},
- {id:"lesson",t:"Selesaikan satu materi",xp:20,ev:"lesson",n:1},
- {id:"route",t:"Cek routing table (show ip route)",xp:20,ev:"route",n:1}];
+ {id:"ip",t:"Configure an IP address",xp:20,ev:"ip",n:1},
+ {id:"vlan",t:"Create a VLAN",xp:30,ev:"vlan",n:1},
+ {id:"trouble",t:"Solve a troubleshooting case",xp:40,ev:"trouble",n:1},
+ {id:"quiz",t:"Answer 5 quiz questions correctly",xp:30,ev:"quiz_ok",n:5},
+ {id:"lesson",t:"Complete a lesson step",xp:20,ev:"lesson",n:1},
+ {id:"route",t:"Check the routing table",xp:20,ev:"route",n:1}];
 const today=()=>new Date().toISOString().slice(0,10);
+const pad2=n=>String(n).padStart(2,"0");
+function touchDay(){const d=today(),s=store.get("days",{last:null,n:0});if(s.last===d)return;const y=new Date(Date.parse(d)-864e5).toISOString().slice(0,10);s.n=s.last===y?s.n+1:1;s.last=d;store.set("days",s)}
+function dayStreak(){const s=store.get("days",{last:null,n:0});return s.last&&Date.parse(today())-Date.parse(s.last)<=864e5?s.n:0}
 const dailyState=()=>{const d=store.get("daily",null);return d&&d.date===today()?d:{date:today(),cnt:{},done:{}}};
 const dailyList=()=>{const k=Math.floor(Date.parse(today())/864e5)%DQ.length;return[0,1,2].map(i=>DQ[(k+i)%DQ.length])};
 let dqMute=false;
 const quietly=f=>{dqMute=true;try{return f()}finally{dqMute=false}};
-function xpPop(n){const el=document.createElement("div");el.className="xpop";el.textContent="+"+n+" XP";document.body.appendChild(el);setTimeout(()=>el.remove(),1200)}
+function xpPop(n){touchDay();const el=document.createElement("div");el.className="xpop";el.textContent="+"+n+" XP";document.body.appendChild(el);setTimeout(()=>el.remove(),1200)}
 function dailyEvent(ev,by=1){
  if(dqMute)return;
  const d=dailyState();d.cnt[ev]=(d.cnt[ev]||0)+by;
  {const A=store.get("ach",{});A[ev]=(A[ev]||0)+by;store.set("ach",A)}
- dailyList().forEach(q=>{if(q.ev===ev&&!d.done[q.id]&&d.cnt[ev]>=q.n){d.done[q.id]=true;S.xp+=q.xp;store.set("xp",S.xp);xpPop(q.xp);toast("Quest harian selesai: "+q.t+" (+"+q.xp+" XP)")}});
+ dailyList().forEach(q=>{if(q.ev===ev&&!d.done[q.id]&&d.cnt[ev]>=q.n){d.done[q.id]=true;S.xp+=q.xp;store.set("xp",S.xp);xpPop(q.xp);toast("Daily quest complete: "+q.t+" (+"+q.xp+" XP)")}});
  store.set("daily",d);
 }
 const levelInfo=xp=>{let i=0;LEVELS.forEach((l,k)=>{if(xp>=l[0])i=k});const cur=LEVELS[i][0],nx=LEVELS[i+1];return{n:i+1,name:LEVELS[i][1],next:nx?nx[0]:null,nextName:nx?nx[1]:null,pct:nx?Math.round((xp-cur)/(nx[0]-cur)*100):100}};
 
-export {toast, xpPop, dailyEvent, CATS, PAGES, store, LEVELS, levelOf, S, $, esc, hl, DQ, today, dailyState, dailyList, dqMute, quietly, levelInfo};
+export {toast, touchDay, dayStreak, xpPop, dailyEvent, CATS, PAGES, store, LEVELS, levelOf, S, $, esc, hl, DQ, today, pad2, dailyState, dailyList, dqMute, quietly, levelInfo};

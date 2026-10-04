@@ -1,0 +1,47 @@
+import {S, $, esc} from "../core.js";
+import {go} from "../main.js";
+import {useDevice, RT, SW, LX} from "../sim/engine.js";
+import {renderSandbox} from "./sandbox.js";
+
+const SCOL={ok:"#22C55E",warn:"#F59E0B",off:"#64748B",bad:"#EF4444"},SNAME={ok:"Online",warn:"Warning",off:"Idle",bad:"Error"};
+function devStatus(o,k){
+ const ifs=Object.values(o.ifs||{});
+ if(k==="rt"){const ip=ifs.filter(i=>i.ip);return ip.some(i=>i.up)?(ip.some(i=>!i.up)?"warn":"ok"):ip.length?"warn":"off"}
+ if(k==="sw")return Object.keys(o.vlans||{}).length>1||ifs.some(p=>p.mode==="trunk"||p.vlan!==1)?"ok":"off";
+ return "ok";
+}
+function devInfo(k){
+ const o=k==="rt"?RT:k==="sw"?SW:LX,ifs=Object.values(o.ifs||{}),up=ifs.filter(i=>i.up).length;
+ const ip=k==="rt"?((ifs.find(i=>i.ip)||{}).ip||"no IP"):k==="sw"?"VLANs "+Object.keys(o.vlans).length:"users "+o.users.length;
+ return{name:k==="srv"?"SRV1":o.host,ip,st:devStatus(o,k),ifc:k==="srv"?"eth0":up+"/"+ifs.length+" up"};
+}
+const nodeShape=(t,x,y)=>t==="rt"?`<circle class="body" cx="${x}" cy="${y}" r="20"/><path d="M${x-10} ${y}h20M${x} ${y-10}v20"/>`
+ :t==="sw"?`<rect class="body" x="${x-26}" y="${y-13}" width="52" height="26" rx="5"/><path d="M${x-15} ${y-3}h30M${x-15} ${y+4}h30"/>`
+ :t==="srv"?`<rect class="body" x="${x-17}" y="${y-22}" width="34" height="44" rx="4"/><path d="M${x-9} ${y-10}h18M${x-9} ${y}h18"/>`
+ :t==="cloud"?`<ellipse class="body" cx="${x}" cy="${y}" rx="28" ry="15"/>`
+ :`<rect class="body" x="${x-18}" y="${y-13}" width="36" height="26" rx="4"/><path d="M${x-8} ${y+17}h16"/>`;
+const topoLegend=()=>`<div class="legend">${[["ok","Online"],["warn","Warning"],["off","Idle"],["bad","Error"]].map(x=>`<span><i style="background:${SCOL[x[0]]}"></i>${x[1]}</span>`).join("")}</div>`;
+function liveTopo(sel){
+ const I={rt:devInfo("rt"),sw:devInfo("sw"),srv:devInfo("srv")};
+ const live=(k,t,x,y)=>{const d=I[k];return `<g class="node-g ${d.st}${sel===k?" sel":""}" data-node="${k}" data-tip="${esc([d.name,"IP: "+d.ip,"Status: "+SNAME[d.st],"Interface: "+d.ifc].join("|"))}" tabindex="0" role="button" aria-label="${esc(d.name)} ${SNAME[d.st]}"><circle class="halo" cx="${x}" cy="${y}" r="30"/>${nodeShape(t,x,y)}<circle cx="${x+24}" cy="${y-18}" r="5" fill="${SCOL[d.st]}" stroke="var(--card)" stroke-width="1.5"/><text x="${x}" y="${y+40}">${esc(d.name)}</text><text class="sub" x="${x}" y="${y+52}">${esc(d.ip)}</text></g>`};
+ const dec=(t,x,y,label,st)=>`<g class="node-g dec">${nodeShape(t,x,y)}<circle cx="${x+22}" cy="${y-16}" r="4" fill="${SCOL[st]}" stroke="var(--card)" stroke-width="1.5"/><text x="${x}" y="${y+34}">${label}</text></g>`;
+ const ln=(a,b,on)=>`<line class="${on?"on":""}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+ const N={net:[310,24],rt:[310,92],sw:[170,172],srv:[450,172],p1:[100,240],p2:[240,240]},onR=I.rt.st==="ok",onS=I.sw.st==="ok";
+ return `<svg class="node-svg" viewBox="0 0 620 285" role="group" aria-label="Network topology">${ln(N.net,N.rt,onR)}${ln(N.rt,N.sw,onR&&onS)}${ln(N.rt,N.srv,onR)}${ln(N.sw,N.p1,onS)}${ln(N.sw,N.p2,onS)}${dec("cloud",...N.net,"Internet",onR?"ok":"off")}${live("rt","rt",...N.rt)}${live("sw","sw",...N.sw)}${live("srv","srv",...N.srv)}${dec("pc",...N.p1,"PC1",onS?"ok":"off")}${dec("pc",...N.p2,"PC2",onS?"ok":"off")}</svg><p class="ntopo-cap">Hover a device for details. Click it to open it in the Sandbox.</p>`;
+}
+const ntip=()=>{let t=document.getElementById("ntip");if(!t){t=document.createElement("div");t.id="ntip";t.className="ntip";t.hidden=true;document.body.appendChild(t)}return t};
+document.addEventListener("mouseover",e=>{
+ const n=e.target.closest&&e.target.closest("[data-node]"),t=ntip();
+ if(!n){t.hidden=true;return}
+ t.innerHTML=n.dataset.tip.split("|").map((x,i)=>i?"<div>"+esc(x)+"</div>":"<b>"+esc(x)+"</b>").join("");
+ t.hidden=false;const r=n.getBoundingClientRect();t.style.left=Math.max(8,Math.min(r.left,innerWidth-200))+"px";t.style.top=(r.bottom+6)+"px";
+});
+function openNode(n){const d={rt:"router",sw:"switch",srv:"linux"}[n.dataset.node];useDevice(d);if(S.page==="sandbox")renderSandbox();else go("sandbox")}
+document.addEventListener("click",e=>{const n=e.target.closest("[data-node]");if(n)openNode(n)});
+document.addEventListener("keydown",e=>{
+ const n=e.target.closest&&e.target.closest("[data-node]");
+ if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openNode(n);return}
+ if(e.key==="/"&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();go("cari");setTimeout(()=>{const q=$("#gq");if(q)q.focus()},60)}
+});
+
+export {devStatus, devInfo, liveTopo, openNode, SCOL, SNAME, nodeShape, topoLegend, ntip};

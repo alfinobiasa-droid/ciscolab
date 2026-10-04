@@ -1,6 +1,6 @@
 import MODULES from "../data/modules.json";
 import LESSONS from "../data/lessons.json";
-import {xpPop, dailyEvent, store, S, $, esc} from "../core.js";
+import {xpPop, dailyEvent, store, S, $, esc, pad2} from "../core.js";
 import {render, go} from "../main.js";
 import {L, pct, shuffle} from "./quiz.js";
 import {useDevice} from "../sim/engine.js";
@@ -35,7 +35,7 @@ function topoSvg(nodes){
   if(i)s+=`<path d="M${x-84} ${cy}H${x-26}" stroke="var(--cyan)" stroke-width="2"/>`;
   s+=`<g fill="var(--card)" stroke="currentColor" stroke-width="2">${ico(nd[1],x)}</g><text x="${x}" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor">${esc(nd[0])}</text>`;
   if(sub)s+=`<text x="${x}" y="91" text-anchor="middle" font-size="9.5" fill="var(--mute)">${esc(sub)}</text>`;
-  if(st)s+=`<circle cx="${x+22}" cy="${cy-18}" r="5" fill="${st==="ok"?"#1a9b5c":"#d63c4f"}" stroke="var(--card)" stroke-width="1.5"/>`;
+  if(st)s+=`<circle cx="${x+22}" cy="${cy-18}" r="5" fill="${st==="ok"?"#22C55E":"#EF4444"}" stroke="var(--card)" stroke-width="1.5"/>`;
  });
  return `<div class="topo-wrap"><svg viewBox="0 0 ${W} 100" style="min-width:${Math.min(W,330)}px;width:100%;max-width:${W}px;display:block;margin:0 auto" role="img" aria-label="Topologi: ${esc(nodes.map(x=>x[0]).join(", "))}">${s}</svg></div>`;
 }
@@ -49,18 +49,25 @@ document.addEventListener("click",e=>{
 function renderModule(){
  const m=MODULES.find(x=>x.id===MD.id),ls=LESSONS[m.id],l=ls[MD.i],done=isDone(m.id,MD.i),solved=done||MD.sel!=null;
  const pct=Math.round(doneSet(m.id).length/ls.length*100),last=MD.i===ls.length-1;
- $("#view").innerHTML=`<button class="chip" data-md="back" style="margin-bottom:10px">← Semua modul</button>
- <div class="qcard" style="border-top:5px solid ${m.color}"><h1 class="pg" style="margin:0 0 8px;line-height:1.25">${m.title}</h1>
- <div class="meta"><span class="tag o">${m.level}</span><span class="tag">⏱ ${m.min} menit</span><span class="tag">Progress ${pct}%</span></div>
- <div class="bar" style="margin:12px 0 4px"><i style="width:${pct}%"></i></div>
- <div style="margin:12px 0 4px"><b>Tujuan pembelajaran</b><ul class="goals">${(m.goals||[]).map(g=>`<li>${esc(g)}</li>`).join("")}</ul>${m.topo?`<b>Topologi</b>${topoSvg(m.topo)}`:""}</div>
- ${ls.map((x,i)=>{const d=isDone(m.id,i),u=unlocked(m.id,i);return `<button class="opt${i===MD.i?" sel":""}" data-md="go" data-v="${i}" ${u?"":"disabled"}><b>${d?"✓":u?i+1:"🔒"}</b><span>${x[0]}</span></button>`}).join("")}</div>
- <div class="qcard" style="margin-top:14px"><h3 style="margin:0 0 8px">${l[0]}</h3><p style="margin:0">${esc(l[1])}</p><pre class="code">${esc(l[2])}</pre><button class="chip" data-try="${m.id}" style="margin-bottom:6px">Coba di ${TRY[m.id]==="subnet"?"Kalkulator":TRY[m.id]==="trouble"?"Troubleshooting":"Sandbox"} →</button>
- <div class="fb ok" style="margin:12px 0"><b>Tips:</b> ${esc(l[3])}</div>
- <b>Mini quiz</b><p style="margin:4px 0 0">${esc(l[4])}</p>
+ const steps=ls.map((x,i)=>{const d=isDone(m.id,i),u=unlocked(m.id,i);return `<button class="step${i===MD.i?" cur":""}${d?" done":""}" data-md="go" data-v="${i}" ${u?"":"disabled"}><span class="sn">${d?"✓":u?pad2(i+1):"🔒"}</span><span>${esc(x[0])}</span></button>`}).join("");
+ const tl=TRY[m.id]==="subnet"?"Calculator":TRY[m.id]==="trouble"?"Troubleshooting":"Sandbox";
+ $("#view").innerHTML=`<div class="ws"><aside class="ws-side"><button class="chip" data-md="back">← All modules</button>
+ <h1 class="pg" style="margin:12px 0 4px;line-height:1.25">${m.title}</h1><p class="muted" style="margin:0 0 10px">${m.cat} · ${m.level} · ${m.min} min</p>
+ <div class="bar"><i style="width:${pct}%"></i></div><div class="prog-foot"><span>Progress</span><span>${pct}%</span></div>
+ <p class="lbl sp">Learning goals</p><ul class="goals">${(m.goals||[]).map(g=>`<li>${esc(g)}</li>`).join("")}</ul>
+ <p class="lbl sp">Steps</p><div class="steplist">${steps}</div></aside>
+ <section class="ws-main pan"><p class="lbl">Step ${pad2(MD.i+1)} of ${pad2(ls.length)}</p><h2 class="h2">${esc(l[0])}</h2>
+ <p class="lbl sp">Explanation</p><p style="margin:0;max-width:72ch">${esc(l[1])}</p>
+ ${m.topo?`<p class="lbl sp">Topology</p><div class="pan flat">${topoSvg(m.topo)}</div>`:""}
+ <p class="lbl sp">Cisco configuration</p><pre class="code">${esc(l[2])}</pre>
+ <div class="seg"><button class="chip" data-cp="${esc(l[2])}">Copy</button><button class="chip" data-try="${m.id}">Try in ${tl} →</button></div>
+ <div class="tipbox"><b>Tip:</b> ${esc(l[3])}</div>
+ <p class="lbl sp">Mini quiz</p><p style="margin:0">${esc(l[4])}</p>
  ${MD.order.map((oi,d)=>{const c=solved?(oi===l[6]?" ok":""):(MD.bad.includes(d)?" no":"");return `<button class="opt${c}" data-md="pick" data-v="${d}" ${solved||MD.bad.includes(d)?"disabled":""}><b>${L[d]}</b><span>${esc(l[5][oi])}</span></button>`}).join("")}
- ${MD.msg?`<div role="status" class="fb ok"><b>${MD.msg}</b></div>`:MD.bad.length&&!solved?`<div role="status" class="fb no"><b>✗ Belum tepat.</b> Baca penjelasan di atas, lalu coba lagi.</div>`:""}
- <div style="display:flex;gap:10px"><button class="act alt" style="flex:1;width:auto" data-md="prev" ${MD.i?"":"disabled"}>Materi Sebelumnya</button><button class="act" style="flex:1;width:auto" data-md="next" ${solved&&!last?"":"disabled"}>Materi Berikutnya</button></div></div>`;
+ ${MD.msg?`<div role="status" class="fb ok"><b>${MD.msg}</b></div>`:MD.bad.length&&!solved?`<div role="status" class="fb no"><b>✗ Not quite.</b> Re-read the explanation and try again.</div>`:""}
+ <p class="muted" style="font-size:.85rem">${done?"✓ Step completed":"Answer the mini quiz correctly to complete this step."}</p>
+ <div style="display:flex;gap:10px"><button class="act alt" style="flex:1;width:auto" data-md="prev" ${MD.i?"":"disabled"}>← Previous</button><button class="act" style="flex:1;width:auto" data-md="next" ${solved&&!last?"":"disabled"}>Next →</button></div></section></div>`;
+ const c=$("#crumb");if(c)c.innerHTML="Modules / <b>"+esc(m.title)+"</b>";
 }
 document.addEventListener("click",e=>{
  const t=e.target.closest("[data-md]");if(!t||MD.id==null)return;

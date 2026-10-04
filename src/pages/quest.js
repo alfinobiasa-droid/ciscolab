@@ -4,6 +4,8 @@ import {go} from "../main.js";
 import {withDevice, sbRun, RT, SW, LX, lxAt} from "../sim/engine.js";
 import {sameNet} from "../sim/net.js";
 import {has} from "./reference.js";
+import {dailyCard} from "./dashboard.js";
+import {badgeCard} from "./badges.js";
 
 const QK=store.get("quests",{done:{}});
 const RULES={
@@ -59,7 +61,7 @@ function questCard(q){
 function renderQuest(){
  const d=Object.keys(QK.done).length;
  $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Quest</h1><p style="color:var(--mute);margin:0 0 14px">Kerjakan konfigurasi di Sandbox, lalu kembali ke sini untuk klaim hadiah. ${d} dari ${QUESTS.length} quest selesai.</p>
- <div class="grid">${QUESTS.map(questCard).join("")}</div>`;
+ ${dailyCard()}${badgeCard()}<p class="lbl sp">Quests</p><div class="grid">${QUESTS.map(questCard).join("")}</div>`;
 }
 document.addEventListener("click",e=>{
  const t=e.target.closest("[data-qk]");if(!t)return;

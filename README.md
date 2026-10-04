@@ -14,6 +14,7 @@ npm run build    # hasil di folder dist/
 - src/main.js: titik masuk, router (render, go, navigasi bawah), dan event global
 - src/core.js: state bersama, localStorage (store), XP/level, helper DOM (\$, esc, hl, toast)
 - src/pages/dashboard.js: halaman Home (level, XP, lanjutkan belajar, statistik, quest harian, rekomendasi)
+- src/pages/netview.js: topologi live dari state simulator (status node, tooltip, klik node membuka Sandbox)
 - src/pages/lab.js: lab troubleshooting interaktif (topologi berstatus, terminal, 5 skenario Easy/Medium/Hard)
 - src/pages/badges.js: badge dan notifikasi unlock
 - src/pages/home.js: daftar modul, pencarian dan filter kategori
@@ -53,3 +54,6 @@ Setelah situs dibuka sekali lewat internet, berkas disimpan oleh service worker 
 
 ## Aksesibilitas
 Setiap halaman punya satu judul h1, ada tautan "Lewati ke konten", pesan status dan umpan balik jawaban diumumkan lewat live region, dan semua tombol serta kolom input punya nama yang terbaca pembaca layar.
+
+## Desain
+Tema gelap navy sebagai default (token warna di :root pada src/style.css), tema terang lewat tombol bulan. Font: Inter dan JetBrains Mono dari Google Fonts, dengan fallback system sans dan monospace saat offline.

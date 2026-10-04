@@ -1,10 +1,11 @@
-import {xpPop, dailyEvent, store, S, $, esc, quietly} from "../core.js";
+import {xpPop, dailyEvent, store, S, $, esc, pad2, quietly} from "../core.js";
 import {go} from "../main.js";
 import {withDevice, sbInit, sbRun, sbPrompt} from "../sim/engine.js";
 import {RULES} from "./quest.js";
 import {renderTrouble} from "./trouble.js";
 import {topoSvg} from "./lesson.js";
 import {has} from "./reference.js";
+import {SCOL} from "./netview.js";
 
 const LABS=[
 {id:"e1",lvl:"Easy",title:"Interface router mati",dev:"router",sym:"PC1 tidak bisa menjangkau gateway 192.168.1.1.",nodes:[["PC1","pc"],["SW1","sw"],["R1","rt","bad"],["PC2","pc"]],
@@ -53,19 +54,21 @@ function labDraw(){
  $("#lp").textContent=withDevice(LAB.obj,sbPrompt);
  const t=$("#lterm");t.scrollTop=t.scrollHeight;
 }
+const LOBJ={e1:"Restore connectivity between PC1 and its gateway.",e2:"Make the LAN reachable from R1.",m1:"Restore Internet connectivity from R1.",m2:"Restore connectivity between PC1 and PC2.",h1:"Restore access from PC1 to the server."};
 function renderLab(){
- const v=$("#view"),lvc={Easy:"#1a9b5c",Medium:"var(--orange)",Hard:"#d63c4f"};
- const tabs=`<div class="seg" style="margin-bottom:12px"><button class="chip" data-lab="cases" aria-pressed="false">Kasus</button><button class="chip" data-lab="home" aria-pressed="true">Lab Interaktif</button></div>`;
+ const v=$("#view"),lvc={Easy:"var(--ok)",Medium:"var(--orange)",Hard:"var(--bad)"};
+ const tabs=`<div class="seg" style="margin-bottom:12px"><button class="chip" data-lab="cases" aria-pressed="false">Cases</button><button class="chip" data-lab="home" aria-pressed="true">Incident Lab</button></div>`;
  if(!LAB.id){
-  v.innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Troubleshooting</h1>${tabs}<p style="color:var(--mute);margin:0 0 12px">Diagnosis perangkat di simulator. Temukan penyebabnya, perbaiki dengan command, dan dapatkan +50 XP.</p><div class="grid">${LABS.map(sc=>`<article class="mod" style="--c:${lvc[sc.lvl]}"><div><div class="n">${sc.lvl}</div><h3>${sc.title}</h3></div><p style="margin:0;color:var(--mute)">${sc.sym}</p><div class="meta"><span class="tag">${LABDONE[sc.id]?"Selesai ✓":"Belum selesai"}</span><span class="tag o">+50 XP</span></div><button class="go" data-lab="open" data-v="${sc.id}">${LABDONE[sc.id]?"Ulangi Lab":"Mulai Lab"}</button></article>`).join("")}</div>`;
+  v.innerHTML=`<h1 class="pg" style="margin:4px 0 4px">Network Incident Lab</h1><p class="muted" style="margin:0 0 12px">Diagnose a live simulated device, fix the fault with CLI commands, and earn +50 XP.</p>${tabs}<div class="grid">${LABS.map((sc,i)=>`<article class="mod" style="--c:${lvc[sc.lvl]}"><div class="inc-top"><span class="inc-case">CASE #${pad2(i+1)}</span><span class="diff" style="color:${lvc[sc.lvl]}">● ${sc.lvl.toUpperCase()}</span></div><h3>${sc.title}</h3><p style="margin:0" class="muted">Objective: ${LOBJ[sc.id]}</p><div class="meta"><span class="tag">${LABDONE[sc.id]?"Resolved ✓":"Open"}</span><span class="tag o">Reward +50 XP</span></div><button class="go" data-lab="open" data-v="${sc.id}">${LABDONE[sc.id]?"Replay":"Start Incident"}</button></article>`).join("")}</div>`;
   return;
  }
- const sc=LABS.find(x=>x.id===LAB.id),nodes=sc.nodes.map(n=>[n[0],n[1],n[2]==="bad"&&!LAB.solved?"bad":"ok"]);
- v.innerHTML=`<button class="chip" data-lab="home" style="margin-bottom:10px">← Semua lab</button><div class="qcard"><div class="qtop"><span>${sc.lvl}</span><span>${LAB.solved?"Selesai":"Sedang berjalan"}</span></div><h1 class="pg" style="margin:6px 0">${sc.title}</h1><p style="margin:0">${sc.sym}</p>${topoSvg(nodes)}
- ${LAB.solved?`<div role="status" class="fb ok"><b>✅ Problem solved!${LAB.gain?" +50 XP":""}</b><p>${esc(sc.exp)}</p></div>`:`<b>Alat diagnosis</b><div class="seg" style="margin:8px 0">${sc.tools.map(c=>`<button class="chip" data-lab="run" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>`}
- <div class="term" id="lterm" style="height:min(46vh,380px);margin-top:12px"><div id="lout"></div><label class="tin"><span id="lp"></span><input id="lcmd" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command lab"></label></div>
+ const sc=LABS.find(x=>x.id===LAB.id),idx=LABS.indexOf(sc),lvc2=lvc[sc.lvl],nodes=sc.nodes.map(n=>[n[0],n[1],n[2]==="bad"&&!LAB.solved?"bad":"ok"]);
+ v.innerHTML=`<button class="chip" data-lab="home" style="margin-bottom:10px">← All incidents</button><div class="pan"><div class="inc-top"><span class="inc-case">CASE #${pad2(idx+1)}</span><span class="diff" style="color:${lvc2}">● ${sc.lvl.toUpperCase()}</span></div><h1 class="pg" style="margin:6px 0">${sc.title}</h1><p style="margin:0" class="muted">Objective: ${LOBJ[sc.id]}</p>${topoSvg(nodes)}
+ <div class="stlist">${nodes.map(n=>`<span><i style="background:${n[2]==="bad"?SCOL.bad:SCOL.ok}"></i>${esc(n[0])} ${n[2]==="bad"?"Problem":"Online"}</span>`).join("")}</div>
+ ${LAB.solved?`<div role="status" class="fb ok"><b>✓ INCIDENT RESOLVED${LAB.gain?" · +50 XP":""}</b><p>${esc(sc.exp)}</p></div>`:`<p class="lbl">Tools</p><div class="seg" style="margin-bottom:8px">${sc.tools.map(c=>`<button class="chip" data-lab="run" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>`}
+ <div class="term" id="lterm" style="height:min(46vh,380px);margin-top:10px"><div id="lout"></div><label class="tin"><span id="lp"></span><input id="lcmd" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Lab command"></label></div>
  <div class="seg" style="margin-top:10px">${LCHIPS[sc.dev].map(c=>`<button class="chip" data-lab="fill" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>
- ${LAB.solved?"":`<button class="chip" data-lab="hint" style="margin-top:10px">Petunjuk</button>`}</div>`;
+ ${LAB.solved?"":`<button class="chip" data-lab="hint" style="margin-top:10px">Hint</button>`}</div>`;
  labDraw();
 }
 document.addEventListener("click",e=>{
@@ -83,4 +86,4 @@ document.addEventListener("keydown",e=>{
  const v=e.target.value.trim();e.target.value="";if(v)labRun(v);
 });
 
-export {labOpen, labRun, labDraw, renderLab, LABS, LAB, LABDONE, LCHIPS};
+export {labOpen, labRun, labDraw, renderLab, LABS, LAB, LABDONE, LCHIPS, LOBJ};

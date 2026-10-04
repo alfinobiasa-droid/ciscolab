@@ -14,7 +14,7 @@ function lxInit(o){
  fs.k.root.m=0o700;fs.k.tmp.m=0o777;
  fs.k.etc.k.network=mkdirNode();fs.k.etc.k.network.k.interfaces=mkfileNode();
  fs.k.etc.k.apt=mkdirNode();fs.k.etc.k.apt.k["sources.list"]=mkfileNode();
- Object.assign(o,{dev:"linux",host:"debian",mode:"sh",cwd:"/root",users:["root"],fs,hist:[],hi:0,seen:{},lines:["Simulator shell Debian (root). Ketik help untuk daftar perintah."]});
+ Object.assign(o,{dev:"linux",host:"debian",mode:"sh",cwd:"/root",users:["root"],fs,hist:[],hi:0,seen:{},lines:["Debian shell simulator (root). Type help for commands."]});
 }
 const LXHELP=["Perintah yang didukung (Linux):","  pwd, cd, ls [-l], mkdir [-p], touch, cat","  cp [-r], mv, rm [-r|-rf], rmdir","  chmod <755|u+x>, chown <user[:grup]>, useradd [-m], passwd, whoami, clear"];
 const LXCHIPS=["pwd","cd /home","ls -l","mkdir kebun_binatang","cd kebun_binatang","mkdir karnivora herbivora","touch herbivora/kuda","chmod 676 herbivora/kuda","useradd sandikta_jaya","chown sandikta_jaya herbivora","cp -r karnivora /opt","mv karnivora /tmp","rm -r /tmp/karnivora"];
@@ -118,7 +118,7 @@ function sbInit(o,dev){
  const sw=dev==="switch",ifc=()=>({ip:"",mask:"",up:false,nat:"",acl:{}}),port=()=>({up:true,mode:"access",vlan:1,native:1,allowed:"all"}),ifs={};
  if(sw)["FastEthernet0/1","FastEthernet0/2","FastEthernet0/3","FastEthernet0/4","GigabitEthernet0/1"].forEach(k=>ifs[k]=port());
  else["GigabitEthernet0/0","GigabitEthernet0/1"].forEach(k=>ifs[k]=ifc());
- Object.assign(o,{dev,host:sw?"Switch":"Router",mode:"user",cur:null,curV:null,routes:[],seen:{},hist:[],hi:0,vlans:{1:{name:"default"}},secret:"",banner:"",con:{pw:"",login:false},saved:false,startup:null,dhcp:{ex:[],pools:{}},curP:null,nat:[],acls:{},rp:{on:false,ver:1,nets:[],auto:true},os:{pid:"",rid:"",nets:[],pass:[]},ei:{as:"",nets:[],auto:true},proto:"",ifs,lines:[`Simulator ${sw?"Switch":"Router"}. Ketik ? untuk bantuan.`]});
+ Object.assign(o,{dev,host:sw?"Switch":"Router",mode:"user",cur:null,curV:null,routes:[],seen:{},hist:[],hi:0,vlans:{1:{name:"default"}},secret:"",banner:"",con:{pw:"",login:false},saved:false,startup:null,dhcp:{ex:[],pools:{}},curP:null,nat:[],acls:{},rp:{on:false,ver:1,nets:[],auto:true},os:{pid:"",rid:"",nets:[],pass:[]},ei:{as:"",nets:[],auto:true},proto:"",ifs,lines:[`${sw?"Switch":"Router"} simulator. Type ? for help.`]});
 }
 function sbReset(){SB.dev==="linux"?lxInit(SB):sbInit(SB,SB.dev)}
 function swVlans(){

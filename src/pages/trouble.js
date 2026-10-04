@@ -42,7 +42,7 @@ function renderTrouble(){
  if(LAB.on)return renderLab();
  const v=$("#view"),d=Object.keys(TK.done).length;
  if(T.cur==null){
-  v.innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Trouble</h1><div class="seg" style="margin-bottom:12px"><button class="chip" data-lab="cases" aria-pressed="true">Kasus</button><button class="chip" data-lab="home" aria-pressed="false">Lab Interaktif</button></div><p style="color:var(--mute);margin:0 0 14px">Baca topologi dan output, lalu tentukan penyebabnya. ${d} dari ${TS.length} kasus selesai.</p>
+  v.innerHTML=`<h1 class="pg" style="margin:4px 0 6px">Troubleshooting</h1><div class="seg" style="margin-bottom:12px"><button class="chip" data-lab="cases" aria-pressed="true">Cases</button><button class="chip" data-lab="home" aria-pressed="false">Incident Lab</button></div><p style="color:var(--mute);margin:0 0 14px">Baca topologi dan output, lalu tentukan penyebabnya. ${d} dari ${TS.length} kasus selesai.</p>
   <div class="grid">${TS.map(t=>{const ok=TK.done[t.id];return `<article class="mod" style="--c:${ok?"#1a9b5c":"var(--orange)"}"><div><div class="n">Kasus ${t.id}</div><h3>${t.title}</h3></div><div class="meta"><span class="tag">${ok?"Selesai ✓":"Belum selesai"}</span><span class="tag o">+10 XP</span></div><button class="go" data-tb="open" data-v="${t.id}">${ok?"Ulangi Kasus":"Buka Kasus"}</button></article>`}).join("")}</div>`;
   return;
  }

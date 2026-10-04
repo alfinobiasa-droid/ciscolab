@@ -1,7 +1,7 @@
 import {store, $, esc} from "../core.js";
 import {QS} from "./quiz.js";
 import {QK} from "./quest.js";
-import {MDONE} from "./lesson.js";
+import {MDONE, unlocked} from "./lesson.js";
 import {LABDONE} from "./lab.js";
 
 const BADGES=[
@@ -15,7 +15,7 @@ const earned=()=>store.get("badges",{});
 function showBadge(b){
  const el=document.createElement("div");
  el.className="bpop";el.setAttribute("role","status");
- el.innerHTML="<span>"+b.i+"</span><div><b>Badge terbuka!</b><br>"+esc(b.n)+"</div>";
+ el.innerHTML="<span>"+b.i+"</span><div><b>Badge unlocked!</b><br>"+esc(b.n)+"</div>";
  document.body.appendChild(el);setTimeout(()=>el.remove(),3800);
 }
 function checkBadges(){
