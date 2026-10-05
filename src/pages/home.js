@@ -1,15 +1,15 @@
 import MODULES from "../data/modules.json";
 import {CATS, levelOf, S, $, esc, hl} from "../core.js";
-import {go} from "../main.js";
+import {progOf} from "./lesson.js";
 
 function moduleCard(m){
- const p=S.progress[m.id]||0,q=S.q.trim();
+ const p=progOf(m.id),q=S.q.trim();
  return `<article class="mod" style="--c:${m.color}">
   <div><div class="n">Modul ${m.id}</div><h3>${hl(m.title,q)}</h3></div>
   <div class="meta"><span class="tag o">${m.level}</span><span class="tag">⏱ ${m.min} menit</span><span class="tag">${m.devices.join(" · ")}</span></div>
   <div class="topics">${m.topics.map(t=>`<span>${hl(t,q)}</span>`).join("")}</div>
-  <div><div class="bar" role="progressbar" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div><small style="color:var(--mute)">Progress ${p}%</small></div>
-  <button class="go" data-start="${m.id}">${p>0?"Lanjutkan Modul":"Mulai Modul"}</button></article>`;
+  <div><div class="bar${p===100?" done":""}" role="progressbar" aria-label="Progres modul" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div><small style="color:var(--mute)">Progress ${p}%${p===100?" · selesai":""}</small></div>
+  <button class="go${p===100?" done":""}" data-start="${m.id}"${p===100?` aria-label="Modul selesai, buka untuk review"`:""}>${p===100?"✓ Modul Selesai":p>0?"Lanjutkan Modul →":"Mulai Modul →"}</button></article>`;
 }
 
 function filtered(){

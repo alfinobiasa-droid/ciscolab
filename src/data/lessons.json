@@ -1,60 +1,334 @@
 {
  "1": [
   [
-   "Mode EXEC",
-   "Cisco IOS punya beberapa mode. User EXEC (>) terbatas untuk melihat status. Privileged EXEC (#) memberi akses penuh untuk show dan konfigurasi.",
-   "Router> enable\nRouter# configure terminal\nRouter(config)#",
-   "Ketik ? kapan saja untuk melihat command yang tersedia.",
-   "Prompt Router# menunjukkan mode apa?",
+   "User EXEC Mode",
+   "Mode awal saat masuk ke perangkat Cisco, ditandai prompt Router>.",
+   "Router> ?\nRouter> show version",
+   "Tanda > berarti mode terbatas. Untuk konfigurasi kamu harus naik mode.",
+   "Prompt Router> menandakan mode apa?",
    [
     "User EXEC",
     "Privileged EXEC",
     "Global configuration",
     "Interface configuration"
    ],
-   1
+   0,
+   {
+    "what": "User EXEC adalah mode pertama yang kamu temui saat masuk ke router atau switch. Prompt-nya Router>. Di sini kamu hanya bisa melihat informasi dasar dengan command terbatas.",
+    "why": "Cisco memisahkan hak akses supaya orang yang hanya perlu melihat status tidak bisa mengubah konfigurasi.",
+    "ex": "Seperti pengunjung di lobi gedung: boleh melihat-lihat, tetapi belum boleh masuk ke ruang server.",
+    "res": "Router>\n(hanya command terbatas seperti ping, show tertentu, dan enable)",
+    "err": "Mengetik configure terminal langsung dari Router>. Command itu baru bisa dipakai setelah enable.",
+    "practice": [
+     "?",
+     "show ip interface brief"
+    ],
+    "qwhy": "Tanda > pada prompt selalu berarti User EXEC, mode awal yang terbatas."
+   }
   ],
   [
-   "Hostname dan password",
-   "hostname mengganti nama perangkat. enable secret melindungi mode privileged dengan password terenkripsi, sedangkan line console mengamankan port console.",
-   "Router(config)# hostname R1\nR1(config)# enable secret cisco123\nR1(config)# line console 0\nR1(config-line)# password konsol1\nR1(config-line)# login",
-   "Pakai enable secret, bukan enable password, karena hasilnya terenkripsi.",
-   "Command yang membuat password terenkripsi untuk privileged EXEC:",
+   "Privileged EXEC Mode",
+   "Mode dengan akses lebih luas, prompt Router#, dimasuki dengan enable.",
+   "Router> enable\nRouter#\nRouter# show running-config",
+   "Tanda # berarti Privileged EXEC. Keluar dengan disable.",
+   "Command untuk masuk ke Privileged EXEC dari User EXEC:",
+   [
+    "enable",
+    "configure terminal",
+    "exit",
+    "login"
+   ],
+   0,
+   {
+    "what": "Privileged EXEC adalah mode dengan hak akses lebih tinggi. Prompt-nya Router#. Dari sini kamu bisa memakai semua command show, menyimpan konfigurasi, dan masuk ke mode konfigurasi.",
+    "why": "Mode ini menjadi pintu menuju konfigurasi. Dengan password (enable secret), hanya administrator yang bisa masuk.",
+    "ex": "Seperti kartu akses staf: setelah ditempel, pintu ke ruang kontrol terbuka.",
+    "res": "Router> enable\nRouter#",
+    "err": "Mencoba show running-config dari Router>. Command itu hanya jalan di Router#.",
+    "practice": [
+     "enable",
+     "show running-config"
+    ],
+    "qwhy": "enable menaikkan mode dari User EXEC (>) ke Privileged EXEC (#)."
+   }
+  ],
+  [
+   "Global Configuration Mode",
+   "Mode untuk mengubah konfigurasi perangkat, prompt Router(config)#.",
+   "Router# configure terminal\nRouter(config)#",
+   "Dari sini kamu bisa masuk ke sub-mode seperti interface atau line.",
+   "Prompt Router(config)# menandakan mode:",
+   [
+    "Global configuration",
+    "User EXEC",
+    "Privileged EXEC",
+    "ROMMON"
+   ],
+   0,
+   {
+    "what": "Global Configuration adalah mode untuk mengubah konfigurasi yang berlaku untuk seluruh perangkat, misalnya hostname, password, dan route.",
+    "why": "Semua perubahan konfigurasi dimulai dari sini agar tidak ada perubahan tanpa sengaja saat kamu hanya melihat status.",
+    "ex": "Seperti masuk ke ruang kontrol: dari sini kamu bisa mengubah pengaturan seluruh gedung.",
+    "res": "Router# configure terminal\nEnter configuration commands, one per line.  End with CNTL/Z.\nRouter(config)#",
+    "err": "Mengetik hostname atau ip address saat masih di Router#. Hasilnya error karena belum masuk configuration mode.",
+    "practice": [
+     "enable",
+     "configure terminal"
+    ],
+    "table": [
+     [
+      "Prompt",
+      "Mode",
+      "Fungsi"
+     ],
+     [
+      "Router>",
+      "User EXEC",
+      "Melihat info dasar, command terbatas"
+     ],
+     [
+      "Router#",
+      "Privileged EXEC",
+      "Semua show, simpan konfigurasi, masuk config"
+     ],
+     [
+      "Router(config)#",
+      "Global Configuration",
+      "Mengubah konfigurasi perangkat"
+     ],
+     [
+      "Router(config-if)#",
+      "Interface Configuration",
+      "Mengatur satu interface"
+     ]
+    ],
+    "qwhy": "configure terminal membuka Global Configuration, ditandai (config) pada prompt."
+   }
+  ],
+  [
+   "Hostname",
+   "hostname mengganti nama perangkat.",
+   "Router(config)# hostname R1\nR1(config)#",
+   "Hostname tidak boleh mengandung spasi.",
+   "Apa fungsi command hostname?",
+   [
+    "Mengganti nama perangkat",
+    "Mengganti password",
+    "Mengaktifkan interface",
+    "Menyimpan konfigurasi"
+   ],
+   0,
+   {
+    "what": "Hostname adalah nama yang diberikan kepada perangkat jaringan.",
+    "why": "Supaya administrator mudah membedakan satu router dengan router lain.",
+    "ex": "Misalnya ada R1, R2, dan R3. Daripada semuanya tampil Router#, lebih mudah jika tampil R1#, R2#, R3#.",
+    "res": "R1(config)#",
+    "err": "Menjalankan hostname di mode yang salah. Pastikan berada di Router(config)#.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "hostname R1"
+    ],
+    "qwhy": "hostname mengubah nama perangkat sehingga prompt berubah menjadi nama baru."
+   }
+  ],
+  [
+   "Enable secret",
+   "Password terenkripsi untuk masuk ke Privileged EXEC.",
+   "R1(config)# enable secret cisco123",
+   "Gunakan enable secret, bukan enable password, karena hasilnya di-hash.",
+   "Command untuk membuat password terenkripsi Privileged EXEC:",
    [
     "enable secret",
     "enable password",
     "line vty",
     "banner motd"
    ],
-   0
+   0,
+   {
+    "what": "enable secret membuat password untuk masuk ke Privileged EXEC Mode (Router#).",
+    "why": "Untuk melindungi akses konfigurasi. Kata secret berarti password disimpan terenkripsi (hash) di konfigurasi, tidak terbaca langsung seperti enable password.",
+    "ex": "Setelah diatur, setiap kali ada yang mengetik enable, router meminta password lebih dulu.",
+    "res": "R1> enable\nPassword:\nR1#",
+    "err": "Memakai enable password. Password itu tersimpan hampir sebagai teks biasa. Jika keduanya ada, yang dipakai adalah secret.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "enable secret cisco123",
+     "end",
+     "show running-config"
+    ],
+    "qwhy": "enable secret menyimpan password dalam bentuk terenkripsi (hash), lebih aman daripada enable password."
+   }
   ],
   [
-   "Konfigurasi interface",
-   "Interface router perlu diberi IP dan diaktifkan. Interface router baru secara default administratively down.",
-   "R1(config)# interface gigabitEthernet 0/0\nR1(config-if)# ip address 192.168.1.1 255.255.255.0\nR1(config-if)# no shutdown\nR1(config-if)# end\nR1# show ip interface brief\nGigabitEthernet0/0  192.168.1.1  YES manual  up  up",
-   "Simpan dengan copy running-config startup-config.",
-   "Command untuk mengaktifkan interface:",
+   "Console password",
+   "Mengamankan akses lewat port console.",
+   "R1(config)# line console 0\nR1(config-line)# password konsol1\nR1(config-line)# login",
+   "login wajib ada agar password benar-benar diminta.",
+   "Agar password console benar-benar diminta, command yang wajib ada setelah password adalah:",
+   [
+    "login",
+    "logout",
+    "no login",
+    "enable"
+   ],
+   0,
+   {
+    "what": "line console 0 adalah pengaturan untuk port console, yaitu kabel yang dicolok langsung ke perangkat.",
+    "why": "Siapa pun yang punya akses fisik ke kabel console bisa masuk ke perangkat, jadi harus diberi password.",
+    "ex": "Seperti mengunci pintu ruang server walaupun orang sudah berada di dalam gedung.",
+    "res": "Saat tersambung lewat console:\nUser Access Verification\nPassword:",
+    "err": "Menulis password tanpa login. Hasilnya password tidak pernah diminta.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "line console 0",
+     "password konsol1",
+     "login"
+    ],
+    "qwhy": "login mengaktifkan pemeriksaan password pada line itu. Tanpanya password tidak diminta."
+   }
+  ],
+  [
+   "Banner MOTD",
+   "Pesan peringatan yang tampil saat seseorang masuk ke perangkat.",
+   "R1(config)# banner motd #Akses hanya untuk staf berwenang#",
+   "Karakter pembatas (#) tidak boleh muncul di dalam teks banner.",
+   "Banner MOTD tampil pada saat:",
+   [
+    "Pengguna login ke perangkat",
+    "Perangkat dimatikan",
+    "Interface aktif",
+    "Konfigurasi disimpan"
+   ],
+   0,
+   {
+    "what": "Banner MOTD (Message of the Day) adalah pesan yang tampil saat seseorang masuk ke perangkat.",
+    "why": "Sebagai peringatan bahwa akses hanya untuk yang berwenang. Pesan ini juga berguna sebagai dasar tindakan hukum.",
+    "ex": "Seperti papan Dilarang masuk selain petugas di depan pintu ruang server.",
+    "res": "Akses hanya untuk staf berwenang\n(tampil sebelum prompt login)",
+    "err": "Memakai karakter pembatas (#) di dalam pesan sehingga banner terpotong.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "banner motd #Akses hanya untuk staf berwenang#"
+    ],
+    "qwhy": "MOTD ditampilkan kepada pengguna yang mengakses perangkat, sebelum login."
+   }
+  ],
+  [
+   "Interface configuration",
+   "Memilih interface yang akan dikonfigurasi, prompt (config-if)#.",
+   "R1(config)# interface gigabitEthernet 0/0\nR1(config-if)#",
+   "Singkatan yang diterima: int g0/0.",
+   "Command untuk memilih interface GigabitEthernet 0/0:",
+   [
+    "interface gigabitEthernet 0/0",
+    "select g0/0",
+    "port g0/0",
+    "enable g0/0"
+   ],
+   0,
+   {
+    "what": "Memilih interface yang ingin dikonfigurasi. Setelah itu prompt berubah menjadi (config-if)#.",
+    "why": "IP address dan konfigurasi interface harus diberikan pada interface tertentu, jadi router perlu tahu interface mana yang kamu maksud.",
+    "ex": "Seperti memilih nomor lubang colokan di panel sebelum memasang kabel.",
+    "res": "R1(config)# interface gigabitEthernet 0/0\nR1(config-if)#",
+    "err": "Salah menulis nomor interface, misalnya g0/3 yang tidak ada di perangkat.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface gigabitEthernet 0/0"
+    ],
+    "qwhy": "Interface harus dipilih dulu sebelum IP address atau statusnya diatur."
+   }
+  ],
+  [
+   "IP address",
+   "Memberikan alamat IP dan subnet mask kepada interface.",
+   "R1(config-if)# ip address 192.168.1.1 255.255.255.0",
+   "Gateway LAN biasanya memakai alamat pertama di subnet.",
+   "Command untuk memberi IP address pada interface:",
+   [
+    "ip address 192.168.1.1 255.255.255.0",
+    "ip set 192.168.1.1/24",
+    "address ip 192.168.1.1",
+    "network 192.168.1.1"
+   ],
+   0,
+   {
+    "what": "ip address memberikan alamat IP dan subnet mask kepada interface.",
+    "why": "Agar interface bisa berkomunikasi di jaringan IP dan menjadi gateway bagi perangkat di LAN-nya.",
+    "ex": "192.168.1.1 255.255.255.0 berarti interface ini berada di jaringan 192.168.1.0/24.",
+    "res": "show ip interface brief\nGi0/0  192.168.1.1  YES manual ...",
+    "err": "Salah subnet mask, atau IP berada di subnet yang berbeda dari PC. Akibatnya PC tidak bisa menjangkau gateway.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface gigabitEthernet 0/0",
+     "ip address 192.168.1.1 255.255.255.0"
+    ],
+    "qwhy": "ip address menetapkan alamat IP dan subnet mask pada interface yang sedang dipilih."
+   }
+  ],
+  [
+   "no shutdown",
+   "Mengaktifkan interface yang masih administratively down.",
+   "R1(config-if)# no shutdown\nR1(config-if)# end\nR1# show ip interface brief",
+   "Status administratively down artinya interface belum dinyalakan.",
+   "Command untuk mengaktifkan interface yang administratively down:",
    [
     "no shutdown",
     "shutdown",
     "ip enable",
     "interface up"
    ],
-   0
+   0,
+   {
+    "what": "no shutdown mengaktifkan interface.",
+    "why": "Interface router Cisco secara default berada dalam kondisi administratively down, jadi harus dinyalakan.",
+    "ex": "Seperti menekan tombol power: IP sudah terpasang tetapi interface belum menyala.",
+    "res": "%LINK-5-CHANGED: Interface GigabitEthernet0/0, changed state to up",
+    "err": "Lupa no shutdown sehingga ping gagal walaupun IP sudah benar.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface gigabitEthernet 0/0",
+     "ip address 192.168.1.1 255.255.255.0",
+     "no shutdown",
+     "end",
+     "show ip interface brief"
+    ],
+    "qwhy": "no shutdown membatalkan status shutdown sehingga interface menjadi up."
+   }
   ],
   [
-   "Banner MOTD dan simpan konfigurasi",
-   "banner motd menampilkan pesan peringatan saat seseorang mengakses perangkat. Setelah konfigurasi selesai, simpan agar tidak hilang saat reload.",
-   "R1(config)# banner motd #Akses hanya untuk staf berwenang#\nR1(config)# end\nR1# copy running-config startup-config\nDestination filename [startup-config]?\nBuilding configuration...\n[OK]",
-   "Karakter pembatas (#) tidak boleh muncul di dalam teks banner.",
-   "Command untuk menyimpan konfigurasi ke NVRAM:",
+   "Simpan konfigurasi",
+   "Menyimpan konfigurasi dari RAM ke NVRAM agar tidak hilang.",
+   "R1# copy running-config startup-config",
+   "running-config ada di RAM, startup-config di NVRAM.",
+   "Command untuk menyimpan konfigurasi agar tidak hilang saat reload:",
    [
     "copy running-config startup-config",
     "copy startup-config running-config",
     "erase startup-config",
     "show startup-config"
    ],
-   0
+   0,
+   {
+    "what": "Menyalin konfigurasi yang sedang berjalan (RAM) ke konfigurasi awal (NVRAM).",
+    "why": "Konfigurasi di RAM hilang saat perangkat mati atau reload, sedangkan NVRAM tetap tersimpan.",
+    "ex": "Seperti menekan Save pada dokumen: tanpa Save, pekerjaan hilang saat komputer mati.",
+    "res": "Destination filename [startup-config]?\nBuilding configuration...\n[OK]",
+    "err": "Lupa menyimpan lalu reload sehingga semua konfigurasi hilang.",
+    "practice": [
+     "enable",
+     "copy running-config startup-config",
+     "show startup-config"
+    ],
+    "qwhy": "Konfigurasi berjalan hanya ada di RAM. Perintah copy memindahkannya ke NVRAM."
+   }
   ],
   [
    "Akses remote dengan SSH",

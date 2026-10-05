@@ -57,3 +57,6 @@ Setiap halaman punya satu judul h1, ada tautan "Lewati ke konten", pesan status 
 
 ## Desain
 Tema gelap navy sebagai default (token warna di :root pada src/style.css), tema terang lewat tombol bulan. Font: Inter dan JetBrains Mono dari Google Fonts, dengan fallback system sans dan monospace saat offline.
+
+## Progres modul
+Progres dihitung dari langkah yang benar-benar selesai (mini quiz benar). Kartu modul menampilkan Mulai Modul, Lanjutkan Modul, atau Modul Selesai (hijau) sesuai persentase. Dashboard memprioritaskan modul yang sedang dikerjakan (1-99%), lalu modul pertama yang belum dimulai, dan menampilkan layar "Semua Modul Selesai" bila semua 100%. Data progres lama dimigrasikan otomatis (kunci lessonsV).

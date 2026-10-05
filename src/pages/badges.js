@@ -1,7 +1,7 @@
 import {store, $, esc} from "../core.js";
 import {QS} from "./quiz.js";
 import {QK} from "./quest.js";
-import {MDONE, unlocked} from "./lesson.js";
+import {progOf, unlocked} from "./lesson.js";
 import {LABDONE} from "./lab.js";
 
 const BADGES=[
@@ -9,7 +9,7 @@ const BADGES=[
 {id:"vlan",i:"🏅",n:"VLAN Master",d:"Selesaikan Quest Buat VLAN.",ok:()=>!!QK.done[3]},
 {id:"route",i:"🏅",n:"Routing Beginner",d:"Selesaikan Quest Static Route.",ok:()=>!!QK.done[2]},
 {id:"trb",i:"🏅",n:"Troubleshooter",d:"Selesaikan 2 lab troubleshooting.",ok:()=>Object.keys(LABDONE).length>=2},
-{id:"sub",i:"🏅",n:"Subnetting Expert",d:"Selesaikan modul Subnetting dan capai akurasi 80% (min. 5 soal).",ok:()=>{const c=(QS.cat||{}).Subnetting;return!!MDONE[5]&&!!c&&c[1]>=5&&c[0]/c[1]>=.8}},
+{id:"sub",i:"🏅",n:"Subnetting Expert",d:"Selesaikan modul Subnetting dan capai akurasi 80% (min. 5 soal).",ok:()=>{const c=(QS.cat||{}).Subnetting;return progOf(5)===100&&!!c&&c[1]>=5&&c[0]/c[1]>=.8}},
 {id:"qm",i:"🏅",n:"Quiz Master",d:"Skor 90% atau lebih pada ujian 10 soal ke atas.",ok:()=>store.get("quizHistory",[]).some(x=>x.exam&&x.total>=10&&x.score/x.total>=.9)}];
 const earned=()=>store.get("badges",{});
 function showBadge(b){
