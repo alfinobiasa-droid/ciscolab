@@ -50,13 +50,14 @@ document.addEventListener("click",e=>{
  {const lsn=LESSONS[+t.dataset.try][+t.dataset.li||0],x=lsn&&lsn[7];HINT.title=lsn?lsn[0]:"";HINT.cmds=x&&x.practice?x.practice:lsn?lsn[2].split("\n").map(s=>s.replace(/^\S+[#>]\s*/,"").trim()).filter(Boolean).slice(0,6):null}
  useDevice(d);go("sandbox");
 });
+const cmdTable=r=>`<p class="lbl sp">Penjelasan per command</p><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Command</th><th>Fungsinya</th></tr></thead><tbody>${r.map(c=>`<tr><td><code>${esc(c[0])}</code></td><td>${esc(c[1])}</td></tr>`).join("")}</tbody></table></div>`;
 function lessonBody(m,l,tl){
  const x=l[7],sec=(h,b)=>b?`<p class="lbl sp">${h}</p><div class="sec"><p>${b}</p></div>`:"";
  const topo=m.topo?`<p class="lbl sp">Topologi</p><div class="pan flat">${topoSvg(m.topo)}</div>`:"";
  const cmd=`<p class="lbl sp">Command</p><pre class="code">${esc(l[2])}</pre><div class="seg"><button class="chip" data-cp="${esc(l[2])}">Copy</button><button class="chip" data-try="${m.id}" data-li="${MD.i}">Try in ${tl} →</button></div>`;
  if(!x)return `<p class="lbl sp">Penjelasan</p><p style="margin:0;max-width:72ch">${esc(l[1])}</p>${topo}${cmd}<div class="tipbox"><b>Tips:</b> ${esc(l[3])}</div>`;
  const tbl=x.table?`<p class="lbl sp">Perbandingan mode</p><div class="tbl-wrap"><table class="tbl"><thead><tr>${x.table[0].map(c=>`<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${x.table.slice(1).map(r=>`<tr>${r.map((c,i)=>`<td>${i===0?`<code>${esc(c)}</code>`:esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`:"";
- return sec("Apa itu?",esc(x.what))+sec("Kenapa digunakan?",esc(x.why))+sec("Contoh situasi",esc(x.ex))+tbl+topo+cmd
+ return sec("Apa itu?",esc(x.what))+sec("Kenapa digunakan?",esc(x.why))+sec("Contoh situasi",esc(x.ex))+tbl+topo+cmd+(x.cmds?cmdTable(x.cmds):"")
   +(x.res?`<p class="lbl sp">Hasil yang diharapkan</p><pre class="code res">${esc(x.res)}</pre>`:"")
   +sec("Kesalahan umum",esc(x.err))+`<div class="tipbox"><b>Tips:</b> ${esc(l[3])}</div>`
   +(x.practice?`<p class="lbl sp">Praktik di Sandbox</p><ol class="prac">${x.practice.map(c=>`<li><code>${esc(c)}</code></li>`).join("")}</ol>`:"");
@@ -112,4 +113,4 @@ document.addEventListener("click",e=>{
  if(a!=="pick")window.scrollTo(0,0);
 });
 
-export {setLesson, openModule, completeLesson, topoSvg, lessonBody, lessonFeedback, renderCelebrate, renderModule, MD, LS, MDONE, doneSet, progOf, isDone, unlocked, TRY};
+export {setLesson, openModule, completeLesson, topoSvg, lessonBody, lessonFeedback, renderCelebrate, renderModule, MD, LS, MDONE, doneSet, progOf, isDone, unlocked, TRY, cmdTable};

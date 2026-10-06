@@ -60,3 +60,6 @@ Tema gelap navy sebagai default (token warna di :root pada src/style.css), tema 
 
 ## Progres modul
 Progres dihitung dari langkah yang benar-benar selesai (mini quiz benar). Kartu modul menampilkan Mulai Modul, Lanjutkan Modul, atau Modul Selesai (hijau) sesuai persentase. Dashboard memprioritaskan modul yang sedang dikerjakan (1-99%), lalu modul pertama yang belum dimulai, dan menampilkan layar "Semua Modul Selesai" bila semua 100%. Data progres lama dimigrasikan otomatis (kunci lessonsV).
+
+## Format materi
+Setiap langkah materi adalah array: [judul, ringkasan, command, tips, pertanyaan, pilihan, indeks jawaban, x]. Elemen x (opsional) berisi what, why, ex, res, err, practice, qwhy, cmds, dan table. Bila x ada, halaman menampilkan Apa itu?, Kenapa digunakan?, Contoh situasi, Command, Hasil yang diharapkan, Kesalahan umum, Tips, dan Praktik di Sandbox. Saat ini modul 1, 2, dan 3 memakai format ini; modul lain memakai tampilan ringkas dan bisa dilengkapi bertahap di src/data/lessons.json.

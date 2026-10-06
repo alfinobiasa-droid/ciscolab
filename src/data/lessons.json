@@ -349,7 +349,7 @@
   [
    "Membuat VLAN",
    "VLAN memecah satu switch menjadi beberapa broadcast domain. Perangkat beda VLAN tidak bisa berkomunikasi tanpa routing.",
-   "Switch(config)# vlan 10\nSwitch(config-vlan)# name Sales\nSwitch(config-vlan)# vlan 20\nSwitch(config-vlan)# name Admin",
+   "Switch(config)# vlan 10\nSwitch(config-vlan)# name STAFF\nSwitch(config-vlan)# vlan 20\nSwitch(config-vlan)# name SISWA",
    "Default semua port ada di VLAN 1.",
    "Command untuk membuat VLAN 10:",
    [
@@ -358,7 +358,35 @@
     "vlan-create 10",
     "interface vlan create 10"
    ],
-   0
+   0,
+   {
+    "what": "Switch adalah perangkat yang menghubungkan banyak komputer dalam satu jaringan lokal. VLAN (Virtual LAN) membagi satu switch menjadi beberapa jaringan logis yang terpisah.",
+    "why": "Supaya kelompok berbeda, misalnya STAFF dan SISWA, tidak saling melihat traffic broadcast satu sama lain. Jaringan jadi lebih aman dan rapi.",
+    "ex": "VLAN seperti membagi satu gedung menjadi beberapa ruangan. VLAN 10 = Ruang A, VLAN 20 = Ruang B. Walau memakai gedung (switch) yang sama, kedua kelompok terpisah secara logis.",
+    "res": "Switch# show vlan brief\n10   STAFF   active\n20   SISWA   active",
+    "err": "Membuat VLAN di mode yang salah. VLAN dibuat di global configuration, yaitu Switch(config)#, bukan di interface.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "vlan 10",
+     "name STAFF",
+     "vlan 20",
+     "name SISWA",
+     "end",
+     "show vlan brief"
+    ],
+    "qwhy": "vlan 10 membuat VLAN bernomor 10 di switch.",
+    "cmds": [
+     [
+      "vlan 10",
+      "Membuat VLAN nomor 10 dan masuk ke mode konfigurasi VLAN."
+     ],
+     [
+      "name STAFF",
+      "Memberi nama VLAN agar mudah dikenali di show vlan brief."
+     ]
+    ]
+   }
   ],
   [
    "Access port dan trunk",
@@ -372,7 +400,40 @@
     "Console",
     "Loopback"
    ],
-   0
+   0,
+   {
+    "what": "Access port adalah port yang hanya menjadi anggota satu VLAN, dipakai untuk perangkat akhir seperti PC. Trunk adalah port yang membawa banyak VLAN sekaligus, dipakai untuk menghubungkan switch ke switch atau ke router.",
+    "why": "Setiap PC harus berada di VLAN yang benar (access), dan VLAN yang sama di dua switch harus tetap bisa berkomunikasi lewat satu kabel (trunk).",
+    "ex": "Access port seperti pintu ruangan A: orang di dalam hanya masuk ruangan A. Trunk seperti koridor utama yang dilewati penghuni semua ruangan, dengan tanda pengenal (tag) agar tidak tertukar.",
+    "res": "Switch# show interfaces trunk\nGi0/1  on  802.1q  trunking  1",
+    "err": "Menjadikan port PC sebagai trunk, atau lupa mengatur mode trunk di salah satu ujung kabel.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface fa0/1",
+     "switchport mode access",
+     "switchport access vlan 10",
+     "interface g0/1",
+     "switchport mode trunk",
+     "end",
+     "show interfaces trunk"
+    ],
+    "qwhy": "Trunk membawa traffic banyak VLAN dengan tag 802.1Q, sedangkan access hanya satu VLAN.",
+    "cmds": [
+     [
+      "switchport mode access",
+      "Menjadikan port sebagai access port (satu VLAN)."
+     ],
+     [
+      "switchport access vlan 10",
+      "Memasukkan port ke VLAN 10."
+     ],
+     [
+      "switchport mode trunk",
+      "Menjadikan port trunk yang membawa banyak VLAN."
+     ]
+    ]
+   }
   ],
   [
    "Native VLAN dan Inter-VLAN",
@@ -386,7 +447,34 @@
     "Kabel console",
     "DHCP relay"
    ],
-   0
+   0,
+   {
+    "what": "Native VLAN adalah VLAN yang frame-nya dikirim tanpa tag di trunk (default VLAN 1). Inter-VLAN routing adalah proses menghubungkan dua VLAN berbeda lewat router atau switch Layer 3.",
+    "why": "Beda VLAN berarti beda subnet, sehingga butuh perangkat Layer 3 agar bisa saling berkomunikasi.",
+    "ex": "Ruang A dan Ruang B tidak punya pintu penghubung. Router bertindak sebagai resepsionis yang meneruskan pesan antar ruangan.",
+    "res": "R1(config-subif)# encapsulation dot1q 10\nR1(config-subif)# ip address 192.168.10.1 255.255.255.0",
+    "err": "Native VLAN berbeda di dua ujung trunk, atau lupa membuat gateway untuk setiap VLAN.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface g0/1",
+     "switchport mode trunk",
+     "switchport trunk native vlan 99",
+     "end",
+     "show interfaces trunk"
+    ],
+    "qwhy": "Router-on-a-stick memakai subinterface dengan encapsulation dot1q agar satu trunk melayani banyak VLAN.",
+    "cmds": [
+     [
+      "switchport trunk native vlan 99",
+      "Mengubah native VLAN trunk menjadi 99. Harus sama di kedua ujung."
+     ],
+     [
+      "encapsulation dot1q 10",
+      "Pada subinterface router: memakai VLAN 10 dengan tag 802.1Q."
+     ]
+    ]
+   }
   ],
   [
    "Verifikasi dan salah konfigurasi VLAN",
@@ -400,7 +488,31 @@
     "hostname",
     "enable secret"
    ],
-   0
+   0,
+   {
+    "what": "Verifikasi VLAN berarti memeriksa apakah VLAN sudah dibuat, port berada di VLAN yang benar, dan trunk membawa VLAN yang dibutuhkan.",
+    "why": "Kebanyakan masalah VLAN berasal dari kesalahan kecil yang mudah terlihat lewat show command.",
+    "ex": "Dua PC satu subnet tidak bisa saling ping. Cek show vlan brief: kemungkinan salah satu port ada di VLAN lain.",
+    "res": "Switch# show vlan brief\n10  STAFF  active  Fa0/1\n20  SISWA  active  Fa0/2",
+    "err": "Memeriksa routing padahal masalahnya hanya port yang salah VLAN.",
+    "practice": [
+     "enable",
+     "show vlan brief",
+     "show interfaces trunk",
+     "show running-config"
+    ],
+    "qwhy": "Periksa dari port PC menuju uplink: show vlan brief untuk port, show interfaces trunk untuk trunk.",
+    "cmds": [
+     [
+      "show vlan brief",
+      "Daftar VLAN dan port anggotanya."
+     ],
+     [
+      "show interfaces trunk",
+      "Status trunk dan VLAN yang diizinkan."
+     ]
+    ]
+   }
   ],
   [
    "Jenis VLAN dan VLAN antar lantai",
@@ -414,7 +526,37 @@
     "Management VLAN",
     "Data VLAN"
    ],
-   0
+   0,
+   {
+    "what": "VLAN punya lima jenis: default (VLAN 1), data (untuk pengguna), native (frame tanpa tag di trunk), voice (untuk telepon IP), dan management (untuk mengelola switch).",
+    "why": "Memisahkan jenis traffic membuat jaringan lebih teratur dan lebih aman.",
+    "ex": "Gedung dua lantai: tiap lantai punya switch sendiri. VLAN 10 Logistik dan VLAN 20 Keuangan dibuat di kedua switch, lalu switch dihubungkan dengan trunk supaya anggota VLAN yang sama di lantai berbeda tetap satu jaringan.",
+    "res": "Switch# show vlan brief\n10  Logistik   active\n20  Keuangan   active",
+    "err": "Membuat VLAN hanya di satu switch sehingga VLAN itu tidak ada di switch satunya.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "vlan 10",
+     "name Logistik",
+     "vlan 20",
+     "name Keuangan",
+     "interface g0/1",
+     "switchport mode trunk",
+     "end",
+     "show vlan brief"
+    ],
+    "qwhy": "Native VLAN adalah satu-satunya VLAN yang dikirim tanpa tag di trunk 802.1Q.",
+    "cmds": [
+     [
+      "vlan 10",
+      "Membuat VLAN di setiap switch yang membutuhkannya."
+     ],
+     [
+      "switchport mode trunk",
+      "Menghubungkan switch antar lantai agar VLAN yang sama tetap tersambung."
+     ]
+    ]
+   }
   ]
  ],
  "3": [
@@ -430,7 +572,30 @@
     "OSPF",
     "Default"
    ],
-   0
+   0,
+   {
+    "what": "Routing adalah proses router menentukan jalur untuk meneruskan paket ke jaringan tujuan. Routing table adalah daftar jaringan tujuan beserta next hop atau interface keluarnya.",
+    "why": "Tanpa routing table, router tidak tahu ke mana harus mengirim paket yang bukan untuk jaringannya sendiri.",
+    "ex": "Seperti papan penunjuk jalan di persimpangan: setiap tujuan punya arah yang ditunjuk.",
+    "res": "C  192.168.1.0/24 is directly connected, Gi0/0\nL  192.168.1.1/32 is directly connected, Gi0/0",
+    "err": "Mengira route langsung sudah ada padahal interface masih down. Route C baru muncul setelah interface up dan punya IP.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface g0/0",
+     "ip address 192.168.1.1 255.255.255.0",
+     "no shutdown",
+     "end",
+     "show ip route"
+    ],
+    "qwhy": "Kode C berarti jaringan terhubung langsung ke interface router.",
+    "cmds": [
+     [
+      "show ip route",
+      "Menampilkan routing table."
+     ]
+    ]
+   }
   ],
   [
    "Static route",
@@ -444,7 +609,40 @@
     "255.255.255.0",
     "Tidak ada"
    ],
-   0
+   0,
+   {
+    "what": "Static route adalah route yang dibuat manual oleh administrator dengan format ip route [network] [mask] [next-hop].",
+    "why": "Router hanya mengenal jaringan yang terhubung langsung. Agar R1 bisa menjangkau jaringan PC2 di balik R2, R1 harus diberi tahu lewat static route.",
+    "ex": "Topologi PC1 → R1 → R2 → PC2. R1 harus tahu bahwa jaringan PC2 (192.168.2.0/24) ada di balik R2, dengan next hop 10.0.0.2.",
+    "res": "S  192.168.2.0/24 [1/0] via 10.0.0.2",
+    "err": "Menulis next hop yang bukan tetangga langsung, atau lupa membuat route balik di R2.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface g0/1",
+     "ip address 10.0.0.1 255.255.255.252",
+     "no shutdown",
+     "exit",
+     "ip route 192.168.2.0 255.255.255.0 10.0.0.2",
+     "end",
+     "show ip route"
+    ],
+    "qwhy": "Argumen ketiga adalah next hop, yaitu alamat tetangga yang harus dilewati paket.",
+    "cmds": [
+     [
+      "192.168.2.0",
+      "Network tujuan."
+     ],
+     [
+      "255.255.255.0",
+      "Subnet mask network tujuan."
+     ],
+     [
+      "10.0.0.2",
+      "Next hop: alamat router tetangga yang dituju."
+     ]
+    ]
+   }
   ],
   [
    "Default route",
@@ -458,7 +656,32 @@
     "Route connected",
     "Route RIP"
    ],
-   0
+   0,
+   {
+    "what": "Default route (0.0.0.0/0) adalah route cadangan yang dipakai jika tidak ada route yang lebih spesifik.",
+    "why": "Praktis untuk jaringan kecil yang hanya punya satu jalan keluar, misalnya ke ISP.",
+    "ex": "Seperti papan petunjuk Semua tujuan lain lewat sini.",
+    "res": "Gateway of last resort is 10.0.0.2\nS*  0.0.0.0/0 [1/0] via 10.0.0.2",
+    "err": "Mengira default route menggantikan route spesifik. Router tetap memilih route paling spesifik lebih dulu.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface g0/1",
+     "ip address 10.0.0.1 255.255.255.252",
+     "no shutdown",
+     "exit",
+     "ip route 0.0.0.0 0.0.0.0 10.0.0.2",
+     "end",
+     "show ip route"
+    ],
+    "qwhy": "0.0.0.0/0 cocok dengan semua tujuan, tetapi hanya dipakai bila tidak ada route yang lebih spesifik.",
+    "cmds": [
+     [
+      "0.0.0.0 0.0.0.0",
+      "Network dan mask yang berarti semua jaringan."
+     ]
+    ]
+   }
   ],
   [
    "Topologi multi-router",
@@ -472,7 +695,26 @@
     "Tanpa route",
     "Route ke broadcast"
    ],
-   0
+   0,
+   {
+    "what": "Pada beberapa router berantai, setiap router butuh route ke LAN yang tidak terhubung langsung, beserta route baliknya.",
+    "why": "Paket harus bisa berangkat dan juga kembali. Jika hanya satu arah, ping tetap gagal.",
+    "ex": "PC1 → R1 → R2 → R3 → PC2: R1 butuh route ke LAN R3 lewat R2, dan R3 butuh route balik ke LAN R1 lewat R2.",
+    "res": "R2 memiliki dua static route: satu ke LAN R1 dan satu ke LAN R3.",
+    "err": "Hanya membuat route pergi tetapi lupa route pulang.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface g0/1",
+     "ip address 10.0.0.1 255.255.255.252",
+     "no shutdown",
+     "exit",
+     "ip route 192.168.3.0 255.255.255.0 10.0.0.2",
+     "end",
+     "show ip route"
+    ],
+    "qwhy": "Komunikasi dua arah membutuhkan route pergi dan pulang di router masing-masing."
+   }
   ],
   [
    "Floating static route",
@@ -486,7 +728,33 @@
     "Jumlah host",
     "Nomor VLAN"
    ],
-   0
+   0,
+   {
+    "what": "Floating static route adalah route cadangan dengan administrative distance (AD) lebih tinggi daripada route utama.",
+    "why": "Jika link utama mati, route cadangan otomatis dipakai.",
+    "ex": "Jalan tol utama (AD 1) dan jalan biasa sebagai cadangan (AD 200): jalan biasa dipakai hanya saat tol ditutup.",
+    "res": "S*  0.0.0.0/0 [1/0] via 10.0.0.2   (utama)\nRoute cadangan [200/0] muncul bila yang utama hilang",
+    "err": "Memberi AD cadangan lebih kecil dari route utama sehingga cadangan justru yang dipakai.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface g0/1",
+     "ip address 10.0.0.1 255.255.255.252",
+     "no shutdown",
+     "exit",
+     "ip route 0.0.0.0 0.0.0.0 10.0.0.2",
+     "ip route 0.0.0.0 0.0.0.0 10.0.1.2 200",
+     "end",
+     "show ip route"
+    ],
+    "qwhy": "AD lebih tinggi berarti prioritas lebih rendah, jadi route baru dipakai saat route utama hilang.",
+    "cmds": [
+     [
+      "... 200",
+      "Angka 200 di akhir adalah administrative distance route cadangan."
+     ]
+    ]
+   }
   ],
   [
    "Praktik tiga router: Geplak, Cucur, Apem",
@@ -500,7 +768,26 @@
     "202.10.10.1",
     "202.10.30.1"
    ],
-   0
+   0,
+   {
+    "what": "Latihan memetakan tiga router berantai (Geplak, Cucur, Apem) lengkap dengan static route di setiap router.",
+    "why": "Melatih membaca topologi dan menentukan next hop yang benar.",
+    "ex": "Geplak tidak terhubung langsung ke Apem, jadi route ke LAN Apem lewat Cucur.",
+    "res": "Geplak: S  202.10.50.0/24 via 202.10.20.2",
+    "err": "Memakai alamat router tujuan akhir sebagai next hop, bukan tetangga langsung.",
+    "practice": [
+     "enable",
+     "configure terminal",
+     "interface g0/1",
+     "ip address 202.10.20.1 255.255.255.0",
+     "no shutdown",
+     "exit",
+     "ip route 202.10.50.0 255.255.255.0 202.10.20.2",
+     "end",
+     "show ip route"
+    ],
+    "qwhy": "Next hop selalu tetangga yang terhubung langsung, yaitu Cucur."
+   }
   ]
  ],
  "4": [
