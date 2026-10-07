@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import {xpPop, dailyEvent, store, S, $, esc, pad2, quietly} from "../core.js";
 import {go} from "../main.js";
 import {withDevice, sbInit, sbRun, sbPrompt} from "../sim/engine.js";
+=======
+import {xpPop, dailyEvent, store, S, $, esc, hl, pad2, quietly} from "../core.js";
+import {go} from "../main.js";
+import {withDevice, sbInit, sbRun, RT, sbPrompt} from "../sim/engine.js";
+>>>>>>> 640f27d (Audit and feature improvements)
 import {RULES} from "./quest.js";
 import {renderTrouble} from "./trouble.js";
 import {topoSvg} from "./lesson.js";
@@ -26,14 +32,22 @@ const LABS=[
  exp:"Fa0/2 berada di VLAN 20, sedangkan Fa0/1 di VLAN 10. Perbaikan: interface fa0/2 lalu switchport access vlan 10."},
 {id:"h1",lvl:"Hard",title:"ACL memblokir seluruh LAN",dev:"router",sym:"Host 192.168.1.10 tidak bisa mengakses server 10.0.0.5.",nodes:[["PC1","pc"],["R1","rt","bad"],["Server","srv"]],
  setup:["enable","conf t","hostname R1","int g0/0","ip address 192.168.1.1 255.255.255.0","no shutdown","exit","int g0/1","ip address 10.0.0.1 255.255.255.0","no shutdown","exit","access-list 10 deny 192.168.1.0 0.0.0.255","access-list 10 permit any","int g0/1","ip access-group 10 out","end"],
+<<<<<<< HEAD
  tools:["simulate 192.168.1.10 10.0.0.5 icmp","show access-lists","show running-config"],solved:{test:"cmd_out",cmd:"simulate 192.168.1.10 10.0.0.5 icmp",has:"DITERUSKAN"},hint:"Periksa ACL yang terpasang pada Gi0/1 dan aturannya.",
+=======
+ tools:["simulate 192.168.1.10 10.0.0.5 icmp","show access-lists","show running-config"],solved:{test:"cmd_out",cmd:"simulate 192.168.1.10 10.0.0.5 icmp",has:"RESULT: ALLOWED"},hint:"Periksa ACL yang terpasang pada Gi0/1 dan aturannya.",
+>>>>>>> 640f27d (Audit and feature improvements)
  exp:"ACL 10 menolak seluruh LAN 192.168.1.0/24 pada Gi0/1 (out). Perbaikan: interface g0/1 lalu no ip access-group 10 out, atau ubah ACL agar hanya host tertentu yang ditolak."}];
 const LAB={on:false,id:null,obj:null,lines:[],solved:false,gain:false};
 const LABDONE=store.get("labs",{});
 const LCHIPS={router:["configure terminal","interface g0/0","interface g0/1","no shutdown","ip address ","no ip access-group 10 out","end"],switch:["configure terminal","interface fa0/1","interface fa0/2","switchport access vlan 10","end"]};
 function labOpen(id){
  const sc=LABS.find(x=>x.id===id);
+<<<<<<< HEAD
  LAB.id=id;LAB.obj={};LAB.solved=false;LAB.gain=false;
+=======
+ LAB.id=id;LAB.obj={};LAB.solved=false;LAB.gain=false;LAB.hl=0;
+>>>>>>> 640f27d (Audit and feature improvements)
  sbInit(LAB.obj,sc.dev);
  quietly(()=>withDevice(LAB.obj,()=>sc.setup.forEach(c=>sbRun(c))));
  LAB.obj.seen={};LAB.lines=["Masalah: "+sc.sym,"Gunakan tombol alat atau ketik command untuk mendiagnosis dan memperbaiki."];
@@ -54,6 +68,10 @@ function labDraw(){
  $("#lp").textContent=withDevice(LAB.obj,sbPrompt);
  const t=$("#lterm");t.scrollTop=t.scrollHeight;
 }
+<<<<<<< HEAD
+=======
+const LCONF={e1:"Interface seperti saklar lampu: IP adalah alamat lampunya, no shutdown adalah menyalakan saklarnya.",e2:"Subnet seperti nomor RT: perangkat harus berada di RT yang sama dengan gateway-nya.",m1:"Default route seperti papan petunjuk Semua tujuan lain lewat sini.",m2:"VLAN seperti ruangan: dua PC di ruangan berbeda tidak bisa mengobrol langsung.",h1:"ACL seperti satpam dengan daftar tamu: aturan yang terlalu luas menolak semua orang."};
+>>>>>>> 640f27d (Audit and feature improvements)
 const LOBJ={e1:"Restore connectivity between PC1 and its gateway.",e2:"Make the LAN reachable from R1.",m1:"Restore Internet connectivity from R1.",m2:"Restore connectivity between PC1 and PC2.",h1:"Restore access from PC1 to the server."};
 function renderLab(){
  const v=$("#view"),lvc={Easy:"var(--ok)",Medium:"var(--orange)",Hard:"var(--bad)"};
@@ -68,7 +86,11 @@ function renderLab(){
  ${LAB.solved?`<div role="status" class="fb ok"><b>✓ INCIDENT RESOLVED${LAB.gain?" · +50 XP":""}</b><p>${esc(sc.exp)}</p></div>`:`<p class="lbl">Tools</p><div class="seg" style="margin-bottom:8px">${sc.tools.map(c=>`<button class="chip" data-lab="run" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>`}
  <div class="term" id="lterm" style="height:min(46vh,380px);margin-top:10px"><div id="lout"></div><label class="tin"><span id="lp"></span><input id="lcmd" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Lab command"></label></div>
  <div class="seg" style="margin-top:10px">${LCHIPS[sc.dev].map(c=>`<button class="chip" data-lab="fill" data-v="${esc(c)}">${esc(c)}</button>`).join("")}</div>
+<<<<<<< HEAD
  ${LAB.solved?"":`<button class="chip" data-lab="hint" style="margin-top:10px">Hint</button>`}</div>`;
+=======
+ ${LAB.solved?"":`<button class="chip" data-lab="hint" style="margin-top:10px">Hint</button> <button class="chip" data-lab="conf" style="margin-top:10px">🤔 Saya masih bingung</button>`}</div>`;
+>>>>>>> 640f27d (Audit and feature improvements)
  labDraw();
 }
 document.addEventListener("click",e=>{
@@ -79,11 +101,20 @@ document.addEventListener("click",e=>{
  if(a==="open"){LAB.on=true;labOpen(v);return renderLab()}
  if(a==="run")return labRun(v);
  if(a==="fill"){const i=$("#lcmd");i.value=v;i.focus();return}
+<<<<<<< HEAD
  if(a==="hint"){LAB.lines.push("Petunjuk: "+LABS.find(x=>x.id===LAB.id).hint);labDraw()}
+=======
+ if(a==="hint"){const sc=LABS.find(x=>x.id===LAB.id);LAB.hl=Math.min((LAB.hl||0)+1,3);LAB.lines.push(["","Hint 1: "+sc.hint,"Hint 2: Jalankan "+sc.tools[0]+" lalu baca hasilnya dengan teliti.","Hint 3 (solusi): "+sc.exp][LAB.hl]);labDraw();t.textContent=LAB.hl<3?"Hint "+(LAB.hl+1)+" ("+LAB.hl+"/3 dibuka)":"Semua hint dibuka"}
+ if(a==="conf"){LAB.lines.push("Analogi: "+LCONF[LAB.id]);labDraw()}
+>>>>>>> 640f27d (Audit and feature improvements)
 });
 document.addEventListener("keydown",e=>{
  if(e.target.id!=="lcmd"||e.key!=="Enter")return;
  const v=e.target.value.trim();e.target.value="";if(v)labRun(v);
 });
 
+<<<<<<< HEAD
 export {labOpen, labRun, labDraw, renderLab, LABS, LAB, LABDONE, LCHIPS, LOBJ};
+=======
+export {labOpen, labRun, labDraw, renderLab, LABS, LAB, LABDONE, LCHIPS, LCONF, LOBJ};
+>>>>>>> 640f27d (Audit and feature improvements)

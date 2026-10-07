@@ -10,6 +10,10 @@ const BADGES=[
 {id:"route",i:"🏅",n:"Routing Beginner",d:"Selesaikan Quest Static Route.",ok:()=>!!QK.done[2]},
 {id:"trb",i:"🏅",n:"Troubleshooter",d:"Selesaikan 2 lab troubleshooting.",ok:()=>Object.keys(LABDONE).length>=2},
 {id:"sub",i:"🏅",n:"Subnetting Expert",d:"Selesaikan modul Subnetting dan capai akurasi 80% (min. 5 soal).",ok:()=>{const c=(QS.cat||{}).Subnetting;return progOf(5)===100&&!!c&&c[1]>=5&&c[0]/c[1]>=.8}},
+<<<<<<< HEAD
+=======
+{id:"linst",i:"🏅",n:"First Linux Install",d:"Selesaikan Linux Installation Lab.",ok:()=>!!store.get("inst",{}).xpGiven},
+>>>>>>> 640f27d (Audit and feature improvements)
 {id:"qm",i:"🏅",n:"Quiz Master",d:"Skor 90% atau lebih pada ujian 10 soal ke atas.",ok:()=>store.get("quizHistory",[]).some(x=>x.exam&&x.total>=10&&x.score/x.total>=.9)}];
 const earned=()=>store.get("badges",{});
 function showBadge(b){

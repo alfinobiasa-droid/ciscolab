@@ -1,6 +1,10 @@
 // Service worker NetLab: stale-while-revalidate untuk semua berkas satu origin.
 // Naikkan nomor CACHE agar cache lama dibuang saat ada perubahan besar.
+<<<<<<< HEAD
 const CACHE = "netlab-v1";
+=======
+const CACHE = "netlab-v3";
+>>>>>>> 640f27d (Audit and feature improvements)
 
 self.addEventListener("install", () => self.skipWaiting());
 

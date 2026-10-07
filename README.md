@@ -1,10 +1,25 @@
+<<<<<<< HEAD
 # NetLab - Interactive Cisco Networking Lab
 
 Web app belajar Cisco IOS untuk siswa SMK/TKJ. Tanpa backend, data progres disimpan di localStorage.
+=======
+# NETLAB - Interactive Networking & Linux Learning Lab
+
+Aplikasi belajar jaringan dan Linux berbasis web (Vite + JavaScript biasa, tanpa framework). Semua progres disimpan di localStorage dan aplikasi bisa dipakai offline (PWA).
+
+## Isi (jumlah aktual)
+- 11 modul, 57 materi (22 materi berformat detail: modul 1, 2, 3), 209 soal, 15 quest, 5 Incident Lab, 7 badge
+- Sandbox: Router Simulator, Switch Simulator, Linux Filesystem Simulator (bukan Debian penuh)
+- Linux Installation Lab (simulasi instalasi Debian, hasilnya dipakai Linux Filesystem Simulator)
+- Troubleshooting (10 kasus) dan Incident Lab (5 lab interaktif) dengan hint bertingkat
+- Mode ujian, review jawaban, riwayat kuis, kalkulator subnet, cheat sheet, kamus, pencarian global
+- Ekspor/impor progres, tema gelap/terang, PWA
+>>>>>>> 640f27d (Audit and feature improvements)
 
 ## Menjalankan
 ```
 npm install
+<<<<<<< HEAD
 npm run dev      # buka alamat yang tampil di terminal
 npm run build    # hasil di folder dist/
 ```
@@ -63,3 +78,37 @@ Progres dihitung dari langkah yang benar-benar selesai (mini quiz benar). Kartu 
 
 ## Format materi
 Setiap langkah materi adalah array: [judul, ringkasan, command, tips, pertanyaan, pilihan, indeks jawaban, x]. Elemen x (opsional) berisi what, why, ex, res, err, practice, qwhy, cmds, dan table. Bila x ada, halaman menampilkan Apa itu?, Kenapa digunakan?, Contoh situasi, Command, Hasil yang diharapkan, Kesalahan umum, Tips, dan Praktik di Sandbox. Saat ini modul 1, 2, dan 3 memakai format ini; modul lain memakai tampilan ringkas dan bisa dilengkapi bertahap di src/data/lessons.json.
+=======
+npm run dev
+npm run build
+```
+
+## Struktur
+- index.html, src/main.js (router dan event global), src/core.js (state, storage, XP, streak harian)
+- src/pages/*: dashboard, home (daftar modul), lesson, quiz, sandbox, install, quest, trouble, lab, subnet, reference (cheat dan kamus), search, settings, netview (topologi live), badges
+- src/sim/engine.js (mesin simulator), src/sim/net.js (helper IP)
+- src/data/*.json: modul, materi, soal, command, kamus, quest
+- public/: manifest, service worker (cache netlab-v3), ikon
+
+## Simulator (apa yang nyata dan apa yang disederhanakan)
+Router, Switch, dan Linux memiliki state sendiri-sendiri. Command benar-benar mengubah state itu, dan perintah show membaca state aktual. Topologi di Dashboard dan Sandbox membaca state tersebut.
+- simulate SRC DST PROTO PORT menghasilkan PACKET TRACE: interface sumber, ACL masuk, routing lookup, ACL keluar, NAT, forwarding, lalu RESULT ALLOWED atau DENIED beserta alasannya.
+- NAT: tabel translasi terisi dari hasil simulate. DHCP: simulate dhcp CLIENT menjalankan DISCOVER, OFFER, REQUEST, ACK dan mengisi show ip dhcp binding.
+- RIP, OSPF, dan EIGRP hanya menyimpan konfigurasi dan menampilkannya di show ip protocols. Neighbor dan route dinamis belum disimulasikan.
+- Ini bukan emulator jaringan penuh. Perangkat tujuan dianggap ada bila jaringannya terhubung atau punya route.
+
+## Linux Installation Lab
+Wizard: Boot, Language, Keyboard, Network (DHCP atau static dengan validasi), Hostname, User, Partition, Bootloader, Review, lalu Install, Reboot, Login. Hanya Debian yang tersedia. Hasil instalasi (hostname, user, IP) dipakai whoami, hostname, pwd, ls, dan ip addr. Reset Installation hanya menghapus state lab dan identitas Linux hasil instalasi, bukan progres lain. XP instalasi (+100) hanya diberikan sekali.
+
+## Streak harian
+Streak dihitung dari hari aktif (tanggal lokal), bukan jumlah soal. Streak jawaban benar dalam kuis diberi label Correct streak.
+
+## Format materi
+Setiap langkah materi: [judul, ringkasan, command, tips, pertanyaan, pilihan, indeks jawaban, x]. Elemen x (opsional) berisi what, why, ex, res, err, practice, qwhy, cmds, table. Bila ada, halaman menampilkan Apa itu, Kenapa digunakan, Contoh situasi, Command, Hasil, Kesalahan umum, Tips, dan Praktik di Sandbox.
+
+## Progres modul
+Progres dihitung dari langkah yang benar-benar selesai. Data lama dimigrasikan otomatis (kunci lessonsV).
+
+## Deploy
+.github/workflows/deploy.yml membangun dan memasang situs ke GitHub Pages setiap push ke main (Settings > Pages > Source: GitHub Actions).
+>>>>>>> 640f27d (Audit and feature improvements)

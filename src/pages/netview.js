@@ -1,7 +1,14 @@
 import {S, $, esc} from "../core.js";
+<<<<<<< HEAD
 import {go} from "../main.js";
 import {useDevice, RT, SW, LX} from "../sim/engine.js";
 import {renderSandbox} from "./sandbox.js";
+=======
+import {render, go} from "../main.js";
+import {useDevice, RT, SW, LX} from "../sim/engine.js";
+import {renderSandbox} from "./sandbox.js";
+import {MD} from "./lesson.js";
+>>>>>>> 640f27d (Audit and feature improvements)
 
 const SCOL={ok:"#22C55E",warn:"#F59E0B",off:"#64748B",bad:"#EF4444"},SNAME={ok:"Online",warn:"Warning",off:"Offline",bad:"Error"};
 function devStatus(o,k){
@@ -40,6 +47,10 @@ document.addEventListener("mouseover",e=>{
 });
 function openNode(n){const d={rt:"router",sw:"switch",srv:"linux"}[n.dataset.node];useDevice(d);if(S.page==="sandbox")renderSandbox();else go("sandbox")}
 document.addEventListener("click",e=>{const n=e.target.closest("[data-node]");if(n)openNode(n)});
+<<<<<<< HEAD
+=======
+window.addEventListener("popstate",()=>{S.page=location.hash.slice(1)||"dashboard";if(S.page==="modul")MD.id=null;render()});
+>>>>>>> 640f27d (Audit and feature improvements)
 document.addEventListener("keydown",e=>{
  const n=e.target.closest&&e.target.closest("[data-node]");
  if(n&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openNode(n);return}

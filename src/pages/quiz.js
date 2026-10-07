@@ -50,7 +50,11 @@ setInterval(()=>{
 
 function quizSetup(){
  const p=pool().length;
+<<<<<<< HEAD
  const st=[["Total Soal",QUESTIONS.length],["Terjawab",QS.ans],["Benar",QS.ok],["Akurasi",pct(QS.ok,QS.ans)+"%"],["Total XP",S.xp],["🔥 Streak",S.streak+"x"]];
+=======
+ const st=[["Total Soal",QUESTIONS.length],["Terjawab",QS.ans],["Benar",QS.ok],["Akurasi",pct(QS.ok,QS.ans)+"%"],["Total XP",S.xp],["Correct streak",S.streak+"x"]];
+>>>>>>> 640f27d (Audit and feature improvements)
  $("#view").innerHTML=`<h1 class="pg" style="margin:4px 0 12px">Quiz</h1>
  <div class="stats">${st.map(x=>`<div class="stat"><b>${x[1]}</b><span>${x[0]}</span></div>`).join("")}</div>
  <div class="qcard"><b>Mode</b><div class="seg" style="margin:8px 0 8px">${[["Latihan",false],["Ujian",true]].map(m=>`<button class="chip" data-q="mode" data-v="${m[1]}" aria-pressed="${Q.exam===m[1]}">${m[0]}</button>`).join("")}</div>${Q.exam?`<div class="seg" style="margin:0 0 8px">${[30,45,60].map(s=>`<button class="chip" data-q="sec" data-v="${s}" aria-pressed="${Q.sec===s}">${s} detik/soal</button>`).join("")}</div><p style="color:var(--mute);font-size:.9rem;margin:0 0 14px">Ujian: batas waktu ${Math.ceil(Math.min(Q.n,p)*Q.sec/60)} menit (${Q.sec} detik per soal), tanpa jawaban benar/salah sampai selesai, lalu ada pembahasan.</p>`:`<div style="height:8px"></div>`}<b>Jumlah soal</b><div class="seg" style="margin:8px 0 16px">${[10,20,50].map(n=>`<button class="chip" data-q="n" data-v="${n}" aria-pressed="${Q.n===n}">${n} Soal</button>`).join("")}</div>
@@ -90,7 +94,11 @@ function quizResult(){
  const r=Q.run,n=r.items.length;
  $("#view").innerHTML=`<div class="qcard" style="text-align:center"><p class="lbl">Score</p><h2 style="margin:0 0 4px">Quiz Complete</h2>
  <div class="score">${r.ok} / ${n}</div>
+<<<<<<< HEAD
  <div class="stats" style="margin-top:16px"><div class="stat"><b>${pct(r.ok,n)}%</b><span>Accuracy</span></div><div class="stat"><b>+${r.xp} XP</b><span>XP earned</span></div><div class="stat"><b>🔥 ${S.streak}</b><span>Streak</span></div></div>
+=======
+ <div class="stats" style="margin-top:16px"><div class="stat"><b>${pct(r.ok,n)}%</b><span>Accuracy</span></div><div class="stat"><b>+${r.xp} XP</b><span>XP earned</span></div><div class="stat"><b>${S.streak}</b><span>Correct streak</span></div></div>
+>>>>>>> 640f27d (Audit and feature improvements)
  ${examReview(r)}<button class="act" data-q="again">Retry Quiz</button><button class="act alt" data-q="new">New Quiz</button><button class="act alt" data-go="modul">Back to Modules</button></div>`;
 }
 document.addEventListener("click",e=>{

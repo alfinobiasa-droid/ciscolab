@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import {toast, store, S, $, esc} from "../core.js";
+=======
+import {toast, touchDay, store, S, $, esc} from "../core.js";
+>>>>>>> 640f27d (Audit and feature improvements)
 import {pool} from "./quiz.js";
 import {useDevice, lxInit, sbInit, sbReset, sbRun, RT, SW, LX, SB, LXHELP, LXCHIPS, CHIPS, HELP, sbPrompt, HELPSW, SWCHIPS} from "../sim/engine.js";
 import {has} from "./reference.js";
@@ -73,10 +77,17 @@ function sbStatus(){
 function renderSandbox(){
  const k=SB.dev==="switch"?"sw":SB.dev==="linux"?"srv":"rt";
  $("#view").innerHTML=`<div class="sb-head"><div><p class="crumb2">NETLAB / SANDBOX</p><h1 class="pg" style="margin:2px 0 0">Sandbox</h1></div><div class="devbadge" id="devbadge"></div></div>
+<<<<<<< HEAD
  <div class="seg" style="margin:12px 0">${["router","switch","linux"].map(d=>`<button class="chip" data-sbact="dev-${d}" aria-pressed="${SB.dev===d}">${{router:"Router",switch:"Switch",linux:"Linux"}[d]}</button>`).join("")}</div>
  ${HINT.cmds&&HINT.cmds.length?`<div class="pan hintc" id="tryhint"><div class="lbl-row"><b>Latihan: ${esc(HINT.title)}</b><button class="chip s" data-sbact="hintx">Tutup</button></div><p class="muted" style="margin:6px 0">Coba jalankan command berikut satu per satu:</p><ol class="prac">${HINT.cmds.map(c=>`<li><code>${esc(c)}</code></li>`).join("")}</ol></div>`:""}
  <div class="sbx"><section class="pan"><p class="lbl">Network Topology</p><div id="sbtopo">${liveTopo(k)}</div>${topoLegend()}</section>
  <section class="pan"><div class="lbl-row"><p class="lbl">${SB.dev==="linux"?"Linux Terminal":"Cisco CLI"}</p><div class="tools"><button class="chip s" data-sbact="clear">Clear</button><button class="chip s" data-sbact="copy">Copy</button><button class="chip s" data-sbact="reset">Reset</button></div></div>
+=======
+ <div class="seg" style="margin:12px 0">${["router","switch","linux"].map(d=>`<button class="chip" data-sbact="dev-${d}" aria-pressed="${SB.dev===d}">${{router:"Router",switch:"Switch",linux:"Linux (Filesystem Sim)"}[d]}</button>`).join("")}</div>
+ ${HINT.cmds&&HINT.cmds.length?`<div class="pan hintc" id="tryhint"><div class="lbl-row"><b>Latihan: ${esc(HINT.title)}</b><button class="chip s" data-sbact="hintx">Tutup</button></div><p class="muted" style="margin:6px 0">Coba jalankan command berikut satu per satu:</p><ol class="prac">${HINT.cmds.map(c=>`<li><code>${esc(c)}</code></li>`).join("")}</ol></div>`:""}
+ <div class="sbx"><section class="pan"><p class="lbl">Network Topology</p><div id="sbtopo">${liveTopo(k)}</div>${topoLegend()}</section>
+ <section class="pan"><div class="lbl-row"><p class="lbl">${SB.dev==="linux"?"Linux Filesystem Simulator":"Cisco CLI"}</p><div class="tools"><button class="chip s" data-sbact="clear">Clear</button><button class="chip s" data-sbact="copy">Copy</button><button class="chip s" data-sbact="reset">Reset</button></div></div>
+>>>>>>> 640f27d (Audit and feature improvements)
  <div class="term" id="term"><div id="tout"></div><label class="tin"><span id="tp"></span><input id="tcmd" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-label="Command"></label></div>
  <div class="seg" style="margin-top:10px">${(SB.dev==="linux"?LXCHIPS:SB.dev==="switch"?SWCHIPS:CHIPS).map(c=>`<button class="chip" data-sb="${esc(c)}">${esc(c)}</button>`).join("")}<button class="chip" data-sbact="help">? Help</button></div>
  <p class="hint muted">Tab: autocomplete · ↑ ↓: history · Ping succeeds when the target is on a connected network or has a valid route.</p>
@@ -90,7 +101,11 @@ document.addEventListener("keydown",e=>{
  if(e.key==="Enter"){
   const v=i.value;SB.lines.push(sbPrompt()+" "+v);
   if(v.trim().toLowerCase()==="clear")SB.lines=[];else SB.lines.push(...sbRun(v));
+<<<<<<< HEAD
   showExplain(v);
+=======
+  showExplain(v);touchDay();
+>>>>>>> 640f27d (Audit and feature improvements)
   if(v.trim())SB.hist.push(v);
   SB.hi=SB.hist.length;i.value="";sbSave();sbDraw();
  }else if(e.key==="ArrowUp"){e.preventDefault();if(SB.hi>0)i.value=SB.hist[--SB.hi]||""}
@@ -110,7 +125,11 @@ document.addEventListener("click",e=>{
  }
  if(e.target.closest("#term")&&!getSelection().toString())$("#tcmd").focus();
 });
+<<<<<<< HEAD
 const pk=o=>({host:o.host,mode:o.mode,cur:o.cur,curV:o.curV,routes:o.routes,ifs:o.ifs,vlans:o.vlans,seen:o.seen,secret:o.secret,banner:o.banner,con:o.con,saved:o.saved,startup:o.startup,dhcp:o.dhcp,curP:o.curP,nat:o.nat,acls:o.acls,rp:o.rp,os:o.os,ei:o.ei,proto:o.proto,fs:o.fs,cwd:o.cwd,users:o.users});
+=======
+const pk=o=>({host:o.host,mode:o.mode,cur:o.cur,curV:o.curV,routes:o.routes,ifs:o.ifs,vlans:o.vlans,seen:o.seen,secret:o.secret,banner:o.banner,con:o.con,saved:o.saved,startup:o.startup,nattab:o.nattab,dhcpb:o.dhcpb,user:o.user,net:o.net,installed:o.installed,full:o.full,dhcp:o.dhcp,curP:o.curP,nat:o.nat,acls:o.acls,rp:o.rp,os:o.os,ei:o.ei,proto:o.proto,fs:o.fs,cwd:o.cwd,users:o.users});
+>>>>>>> 640f27d (Audit and feature improvements)
 const sbSave=()=>store.set("sb2",{rt:pk(RT),sw:pk(SW),lx:pk(LX),dev:SB.dev});
 sbInit(RT,"router");sbInit(SW,"switch");lxInit(LX);
 {const old=store.get("sb",null),sv=store.get("sb2",null);

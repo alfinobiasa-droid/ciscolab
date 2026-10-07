@@ -43,6 +43,11 @@ const RULES={
  mode:(o,r)=>{const n=lxAt(o,r.path);return!!n&&(n.m&0o777)===parseInt(r.value,8)},
  owner:(o,r)=>{const n=lxAt(o,r.path);return!!n&&n.o===r.value},
  user:(o,r)=>o.users.includes(r.value),
+<<<<<<< HEAD
+=======
+ linux_installed:()=>!!store.get("inst",{}).done,
+ linux_login:()=>!!LX.installed,
+>>>>>>> 640f27d (Audit and feature improvements)
  cmd_out:(o,r)=>withDevice(o,()=>{const m=o.mode,c=o.cur;o.mode="priv";const out=sbRun(r.cmd);o.mode=m;o.cur=c;return out}).join("\n").includes(r.has),
  ports_same_vlan:(o,r)=>{const a=o.ifs[r.a],b=o.ifs[r.b];return a.mode==="access"&&b.mode==="access"&&a.vlan===b.vlan}
 };

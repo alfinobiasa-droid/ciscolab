@@ -447,5 +447,29 @@
     }
    }
   ]
+<<<<<<< HEAD
+=======
+ },
+ {
+  "id": 15,
+  "title": "Instal Linux Debian (simulasi)",
+  "desc": "Selesaikan Linux Installation Lab sampai login pertama, lalu cek hasilnya di Linux Filesystem Simulator.",
+  "hint": "Buka Linux Install → ikuti wizard → Install → Reboot → Login → whoami / hostname / ip addr",
+  "xp": 100,
+  "obj": [
+   {
+    "t": "Instalasi selesai",
+    "rule": {
+     "test": "linux_installed"
+    }
+   },
+   {
+    "t": "Login pertama berhasil dan sistem dipakai di simulator",
+    "rule": {
+     "test": "linux_login"
+    }
+   }
+  ]
+>>>>>>> 640f27d (Audit and feature improvements)
  }
 ]

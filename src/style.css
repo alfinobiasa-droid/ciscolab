@@ -303,3 +303,17 @@ body{background-image:none;font-feature-settings:"cv11","ss01"}
 .lk{font:600 9px var(--mono);fill:var(--mute);text-anchor:start}.lk.ok{fill:var(--ok)}.lk.bad{fill:var(--bad)}
 .allok{border-color:var(--ok)}
 .term:focus-within{box-shadow:0 0 0 2px color-mix(in srgb,var(--cyan) 55%,transparent)}
+<<<<<<< HEAD
+=======
+.isteps{display:flex;gap:6px;overflow-x:auto;padding:0 0 4px;margin:0 0 14px;list-style:none}.isteps li{flex:none;font:600 .72rem var(--mono);padding:6px 10px;border:1px solid var(--line);border-radius:8px;color:var(--mute);background:var(--surface)}.isteps li.cur{border-color:var(--cyan);color:var(--ink)}.isteps li.done{color:var(--ok)}
+.ilayout{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.lcard{border-left:3px solid var(--bad)}.lc-head{display:flex;gap:10px;align-items:flex-start}.lc-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin:10px 0}.lc-meta div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}.lc-meta span{display:block;font-size:.7rem;color:var(--mute)}.lc-meta b{font-size:.88rem;overflow-wrap:anywhere}
+.chk-list{list-style:none;padding:0;margin:6px 0}.chk-list li{margin:4px 0}.chk-list li.ok{color:var(--ok)}.chk-list li.no{color:var(--bad)}
+.chk{display:flex;gap:8px;align-items:center;margin:12px 0;font-size:.9rem}.chk input{width:18px;height:18px}
+.part-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:8px;align-items:end;margin:8px 0}
+.bootlog{background:#070B14;border:1px solid var(--line);border-radius:10px;padding:14px;font:.8rem var(--mono);min-height:120px;color:#d1fae5;margin-bottom:10px}
+.bios{margin-top:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#0A1020;font:.85rem var(--mono)}
+select.inp{appearance:auto}
+.path{display:flex;gap:6px;flex-wrap:wrap}.pth{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--mute);font-weight:500}.pth span{font:700 .72rem var(--mono);width:22px;height:22px;display:grid;place-items:center;border-radius:6px;background:var(--soft)}.pth.done{color:var(--ok)}.pth.done span{background:var(--ok);color:#fff}.pth.cur{color:var(--ink);border-color:var(--cyan)}
+@media (min-width:900px){.ilayout{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}}
+>>>>>>> 640f27d (Audit and feature improvements)

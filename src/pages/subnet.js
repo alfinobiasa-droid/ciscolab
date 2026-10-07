@@ -1,5 +1,9 @@
 import {toast, $, esc} from "../core.js";
 import {isIp, ip2n, n2ip, validMask, maskLen} from "../sim/net.js";
+<<<<<<< HEAD
+=======
+import {fld} from "./install.js";
+>>>>>>> 640f27d (Audit and feature improvements)
 
 const SN={mode:"calc",ip:"192.168.1.0",cidr:"24",mask:"255.255.255.0"};
 const SNMODES=[["calc","Subnet"],["c2m","CIDR → Mask"],["m2c","Mask → CIDR"]];

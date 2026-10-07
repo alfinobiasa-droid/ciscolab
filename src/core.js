@@ -3,7 +3,11 @@
 const CATS=["Semua","Dasar Cisco","Switching & VLAN","Routing","Subnetting","Layanan","Keamanan","Linux","Troubleshooting"];
 
 const PAGES=[
+<<<<<<< HEAD
 {k:"dashboard",i:"🏠",t:"Home"},{k:"modul",i:"📚",t:"Modul"},{k:"trouble",i:"🔧",t:"Trouble",d:"Kasus troubleshooting: cari penyebab PC1 tidak bisa ping PC2."},
+=======
+{k:"dashboard",i:"🏠",t:"Home"},{k:"install",i:"💿",t:"Install"},{k:"modul",i:"📚",t:"Modul"},{k:"trouble",i:"🔧",t:"Trouble",d:"Kasus troubleshooting: cari penyebab PC1 tidak bisa ping PC2."},
+>>>>>>> 640f27d (Audit and feature improvements)
 {k:"sandbox",i:"💻",t:"Sandbox",d:"Simulator CLI Cisco: enable, configure terminal, interface, ip address."},
 {k:"quest",i:"🎯",t:"Quest",d:"Misi konfigurasi dengan hadiah XP."},{k:"kuis",i:"🏆",t:"Kuis",d:"Bank soal 100+ dengan soal acak dan skor."},
 {k:"cheat",i:"📋",t:"Cheat",d:"Daftar command dengan tombol salin."},{k:"kamus",i:"📖",t:"Kamus",d:"Istilah jaringan: VLAN, OSPF, CIDR, NAT, dan lainnya."},
@@ -30,7 +34,11 @@ const DQ=[
  {id:"quiz",t:"Answer 5 quiz questions correctly",xp:30,ev:"quiz_ok",n:5},
  {id:"lesson",t:"Complete a lesson step",xp:20,ev:"lesson",n:1},
  {id:"route",t:"Check the routing table",xp:20,ev:"route",n:1}];
+<<<<<<< HEAD
 const today=()=>new Date().toISOString().slice(0,10);
+=======
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())};
+>>>>>>> 640f27d (Audit and feature improvements)
 const pad2=n=>String(n).padStart(2,"0");
 function touchDay(){const d=today(),s=store.get("days",{last:null,n:0});if(s.last===d)return;const y=new Date(Date.parse(d)-864e5).toISOString().slice(0,10);s.n=s.last===y?s.n+1:1;s.last=d;store.set("days",s)}
 function dayStreak(){const s=store.get("days",{last:null,n:0});return s.last&&Date.parse(today())-Date.parse(s.last)<=864e5?s.n:0}
